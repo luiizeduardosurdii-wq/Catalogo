@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  whatsapp  String?
+  logoUrl   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users               User[]
+  categories          Category[]
+  products            Product[]
+  orders              Order[]
+  inventoryMovements  InventoryMovement[]
+
+  @@map("stores")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  storeId      String
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([storeId])
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  name        String
+  description String?
+  priceCents  Int
+  imageUrl    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inventory         Inventory?
+  orderItems        OrderItem[]
+  inventoryMovements InventoryMovement[]
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Inventory {
+  id               String   @id @default(cuid())
+  productId        String   @unique
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         Int      @default(0)
+  reservedQuantity Int      @default(0)
+  lowStockThreshold Int     @default(5)
+  updatedAt        DateTime @updatedAt
+
+  @@map("inventory")
+}
+
+enum MovementType {
+  MANUAL_IN
+  MANUAL_OUT
+  ADJUSTMENT
+  RESERVE
+  RELEASE
+  SALE
+  CANCEL
+}
+
+model InventoryMovement {
+  id          String       @id @default(cuid())
+  storeId     String
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        MovementType
+  quantity    Int
+  balanceAfter Int
+  note        String?
+  orderId     String?
+  order       Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+
+  @@index([storeId])
+  @@index([productId])
+  @@map("inventory_movements")
+}
+
+enum OrderStatus {
+  DRAFT
+  AWAITING_PIX
+  PAID
+  CANCELLED
+  EXPIRED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  storeId         String
+  store           Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  status          OrderStatus @default(DRAFT)
+  customerName    String?
+  customerPhone   String?
+  totalCents      Int         @default(0)
+  pixExpiresAt    DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items              OrderItem[]
+  payment            Payment?
+  inventoryMovements InventoryMovement[]
+
+  @@index([storeId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName  String
+  quantity     Int
+  unitPriceCents Int
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  orderId    String        @unique
+  order      Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider   String
+  externalId String?
+  status     PaymentStatus @default(PENDING)
+  pixCopyPaste String?
+  pixQrCode    String?
+  paidAt     DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([externalId])
+  @@map("payments")
+}
+
+model ProcessedWebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  eventId     String
+  processedAt DateTime @default(now())
+
+  @@unique([provider, eventId])
+  @@map("processed_webhook_events")
+}
