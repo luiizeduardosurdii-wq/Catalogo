@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import type { CatalogProduct } from "./ProductCard";
 
@@ -73,11 +74,29 @@ export function CartDrawer({
                 key={item.product.id}
                 className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-3"
               >
-                <div>
-                  <p className="font-medium">{item.product.name}</p>
-                  <p className="text-sm text-zinc-500">
-                    {formatPrice(item.product.priceCents)}
-                  </p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
+                    {item.product.imageUrl ? (
+                      <Image
+                        src={item.product.imageUrl}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-zinc-300">
+                        📦
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.product.name}</p>
+                    <p className="text-sm text-zinc-500">
+                      {formatPrice(item.product.priceCents)}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button

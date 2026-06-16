@@ -41,12 +41,12 @@ export function CategoryManager({ initial }: { initial: Category[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex gap-2 rounded-2xl bg-white p-4 shadow-sm dark:bg-zinc-900 dark:shadow-none dark:ring-1 dark:ring-zinc-800">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nova categoria"
-          className="flex-1 rounded-xl border px-3 py-2"
+          className="admin-input flex-1 py-2"
         />
         <button
           type="button"
@@ -62,10 +62,10 @@ export function CategoryManager({ initial }: { initial: Category[] }) {
         {initial.map((c) => (
           <li
             key={c.id}
-            className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm"
+            className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-zinc-900 dark:shadow-none dark:ring-1 dark:ring-zinc-800"
           >
             <div>
-              <span className="font-medium">{c.name}</span>
+              <span className="font-medium dark:text-zinc-100">{c.name}</span>
               <span className="ml-2 text-sm text-zinc-400">
                 ({c._count.products} produtos)
               </span>
@@ -73,7 +73,7 @@ export function CategoryManager({ initial }: { initial: Category[] }) {
             <button
               type="button"
               onClick={() => toggle(c.id, c.active)}
-              className={`text-sm ${c.active ? "text-emerald-600" : "text-red-500"}`}
+              className={`text-sm ${c.active ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}
             >
               {c.active ? "Ativa" : "Inativa"}
             </button>

@@ -1,7 +1,7 @@
 {
-  "name": "Catálogo WhatsApp",
-  "short_name": "Catálogo",
-  "description": "Catálogo online com estoque",
+  "name": "SaboArt",
+  "short_name": "SaboArt",
+  "description": "Catálogo SaboArt — sabonetes, sachês e sprays",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",

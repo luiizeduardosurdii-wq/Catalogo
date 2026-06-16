@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50 to-white p-6">
-      <h1 className="text-3xl font-bold text-zinc-900">Catálogo WhatsApp</h1>
+      <BrandLogo size="md" />
       <p className="mt-2 max-w-md text-center text-zinc-600">
-        Catálogo PWA com estoque e pagamento PIX. Compartilhe o link no WhatsApp.
+        Sabonetes, sachês perfumados e sprays. Peça pelo WhatsApp.
       </p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link

@@ -54,10 +54,29 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  await prisma.product.updateMany({
+
+  const product = await prisma.product.findFirst({
     where: { id, storeId: session.user.storeId },
-    data: { active: false },
+    include: { _count: { select: { orderItems: true } } },
   });
 
-  return NextResponse.json({ ok: true });
+  if (!product) {
+    return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+  }
+
+  if (product._count.orderItems > 0) {
+    await prisma.product.update({
+      where: { id },
+      data: { active: false },
+    });
+    return NextResponse.json({ ok: true, deactivated: true });
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.inventoryMovement.deleteMany({ where: { productId: id } });
+    await tx.inventory.deleteMany({ where: { productId: id } });
+    await tx.product.delete({ where: { id } });
+  });
+
+  return NextResponse.json({ ok: true, deleted: true });
 }

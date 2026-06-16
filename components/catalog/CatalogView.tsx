@@ -2,10 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard, type CatalogProduct } from "@/components/ProductCard";
-import { CartDrawer, type CartItem } from "@/components/CartDrawer";
-import { CartBar } from "@/components/CartBar";
+import { CartSidebar } from "@/components/CartSidebar";
+import { BrandLogo } from "@/components/BrandLogo";
+import type { CartItem } from "@/components/CartDrawer";
 
 type Category = { id: string; name: string; slug: string };
+
+const CATEGORY_ICONS: Record<string, string> = {
+  sabonetes: "🧼",
+  "sache-perfumado": "🌸",
+  spray: "💨",
+};
+
+const GRID_CLASS =
+  "grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5";
 
 export function CatalogView({
   storeName,
@@ -23,6 +33,7 @@ export function CatalogView({
   paymentsEnabled: boolean;
 }) {
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -59,7 +70,18 @@ export function CatalogView({
     });
   }, [products, categoryId, search]);
 
-  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+  const groupedByCategory = useMemo(() => {
+    if (categoryId) return null;
+    const groups: { category: Category; products: CatalogProduct[] }[] = [];
+    for (const cat of categories) {
+      const catProducts = filtered.filter((p) => p.categoryId === cat.id);
+      if (catProducts.length > 0) {
+        groups.push({ category: cat, products: catProducts });
+      }
+    }
+    return groups;
+  }, [filtered, categories, categoryId]);
+
   const cartTotal = cart.reduce(
     (s, i) => s + i.product.priceCents * i.quantity,
     0
@@ -93,6 +115,7 @@ export function CatalogView({
       return [...prev, { product, quantity: 1 }];
     });
     setToast(`${product.name} adicionado!`);
+    setCartOpen(true);
   }
 
   function updateQty(productId: string, qty: number) {
@@ -135,7 +158,20 @@ export function CatalogView({
     window.location.href = `/s/${storeSlug}/checkout`;
   }
 
-  const hasCart = cartCount > 0;
+  function renderProductGrid(items: CatalogProduct[]) {
+    return (
+      <div className={GRID_CLASS}>
+        {items.map((p) => (
+          <ProductCard
+            key={p.id}
+            product={p}
+            onAdd={addToCart}
+            inCartQty={qtyByProduct[p.id] ?? 0}
+          />
+        ))}
+      </div>
+    );
+  }
 
   if (!ready) {
     return (
@@ -146,124 +182,176 @@ export function CatalogView({
   }
 
   return (
-    <div
-      className={`relative min-h-screen bg-zinc-50 ${hasCart ? "pb-36" : "pb-4"}`}
-    >
-      <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white shadow-sm">
-        <div className="flex items-start justify-between gap-2 px-4 pt-4">
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-bold text-zinc-900">
-              {storeName}
-            </h1>
-            <p className="text-sm text-zinc-500">Catálogo online</p>
+    <div className="min-h-screen bg-zinc-50">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white shadow-sm">
+          <div className="flex items-start justify-between gap-3 px-4 py-3">
+            <div className="min-w-0 shrink-0">
+              <BrandLogo size="md" priority />
+              <p className="mt-1 text-xs text-zinc-500">
+                Sabonetes, sachês e sprays
+              </p>
+            </div>
+
+            <div className="flex min-w-0 flex-col items-end gap-2">
+              <div className="flex max-w-full items-center justify-end gap-1.5">
+                <div className="flex gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setCategoryId(null)}
+                    className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
+                      !categoryId
+                        ? "bg-emerald-600 text-white"
+                        : "bg-zinc-100 text-zinc-700"
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {categories.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setCategoryId(c.id)}
+                      className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
+                        categoryId === c.id
+                          ? "bg-emerald-600 text-white"
+                          : "bg-zinc-100 text-zinc-700"
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen((open) => !open)}
+                  aria-label={searchOpen ? "Fechar busca" : "Buscar produtos"}
+                  aria-expanded={searchOpen}
+                  className={`shrink-0 touch-manipulation rounded-full p-2 transition-colors ${
+                    searchOpen || search
+                      ? "bg-emerald-600 text-white"
+                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                    aria-hidden
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                </button>
+              </div>
+
+              {searchOpen && (
+                <div className="flex w-full min-w-[180px] max-w-xs items-center gap-1.5 sm:min-w-[220px]">
+                  <input
+                    type="search"
+                    placeholder="Buscar produtos..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    autoFocus
+                    className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  {search && (
+                    <button
+                      type="button"
+                      onClick={() => setSearch("")}
+                      aria-label="Limpar busca"
+                      className="shrink-0 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="h-4 w-4"
+                        aria-hidden
+                      >
+                        <path d="M18 6 6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          {hasCart && (
+        </header>
+
+        {toast && !cartOpen && (
+          <div
+            className="fixed left-4 right-20 top-20 z-40 mx-auto max-w-md"
+            role="status"
+          >
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="relative flex shrink-0 flex-col items-center rounded-2xl border-2 border-emerald-600 bg-emerald-50 px-3 py-2 touch-manipulation active:bg-emerald-100"
-              aria-label="Abrir carrinho"
+              className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-600 px-3 py-2.5 text-left text-white shadow-lg touch-manipulation"
             >
-              <span className="text-lg leading-none" aria-hidden>
-                🛒
-              </span>
-              <span className="mt-0.5 text-[10px] font-bold uppercase text-emerald-800">
-                Carrinho
-              </span>
-              <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-emerald-600 px-1 text-xs font-bold text-white">
-                {cartCount}
+              <span className="text-xs font-medium">✓ {toast}</span>
+              <span className="shrink-0 rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold">
+                Ver →
               </span>
             </button>
-          )}
-        </div>
-
-        <div className="px-4 pb-3 pt-3">
-          <input
-            type="search"
-            placeholder="Buscar produtos..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-base"
-          />
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto px-4 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <button
-            type="button"
-            onClick={() => setCategoryId(null)}
-            className={`shrink-0 touch-manipulation rounded-full px-4 py-2.5 text-sm font-medium ${
-              !categoryId
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-100 text-zinc-700"
-            }`}
-          >
-            Todos
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCategoryId(c.id)}
-              className={`shrink-0 touch-manipulation rounded-full px-4 py-2.5 text-sm font-medium ${
-                categoryId === c.id
-                  ? "bg-emerald-600 text-white"
-                  : "bg-zinc-100 text-zinc-700"
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {toast && (
-        <div
-          className="fixed left-4 right-4 top-20 z-40 mx-auto max-w-md"
-          role="status"
-        >
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            className="flex w-full items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-600 px-4 py-3 text-left text-white shadow-lg touch-manipulation"
-          >
-            <span className="text-sm font-medium">✓ {toast}</span>
-            <span className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold">
-              Ver carrinho →
-            </span>
-          </button>
-        </div>
-      )}
-
-      <main className="relative z-10 grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 md:grid-cols-4">
-        {filtered.map((p) => (
-          <ProductCard
-            key={p.id}
-            product={p}
-            onAdd={addToCart}
-            inCartQty={qtyByProduct[p.id] ?? 0}
-          />
-        ))}
-        {filtered.length === 0 && (
-          <p className="col-span-full py-12 text-center text-zinc-500">
-            Nenhum produto encontrado
-          </p>
+          </div>
         )}
-      </main>
 
-      <CartBar
-        itemCount={cartCount}
-        totalCents={cartTotal}
-        onOpen={() => setCartOpen(true)}
-      />
+        <main className="relative z-10 flex-1 p-2">
+          {filtered.length === 0 ? (
+            <p className="py-12 text-center text-sm text-zinc-500">
+              Nenhum produto encontrado
+            </p>
+          ) : groupedByCategory ? (
+            <div className="space-y-6">
+              {groupedByCategory.map(({ category, products: catProducts }) => (
+                <section
+                  key={category.id}
+                  className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                >
+                  <div className="flex items-center gap-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-emerald-100/60 px-4 py-3">
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl shadow-sm"
+                      aria-hidden
+                    >
+                      {CATEGORY_ICONS[category.slug] ?? "📦"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-base font-bold tracking-tight text-emerald-900 sm:text-lg">
+                        {category.name}
+                      </h2>
+                      <p className="text-xs font-medium text-emerald-700/80">
+                        {catProducts.length}{" "}
+                        {catProducts.length === 1 ? "produto" : "produtos"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-2.5">{renderProductGrid(catProducts)}</div>
+                </section>
+              ))}
+            </div>
+          ) : (
+            renderProductGrid(filtered)
+          )}
+        </main>
+      </div>
 
-      <CartDrawer
+      <CartSidebar
         items={cart}
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
         onUpdateQty={updateQty}
         onWhatsApp={openWhatsApp}
         onCheckout={goCheckout}
         paymentsEnabled={paymentsEnabled}
+        open={cartOpen}
+        onOpenChange={setCartOpen}
       />
     </div>
   );

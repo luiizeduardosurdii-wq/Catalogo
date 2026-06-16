@@ -15,6 +15,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Arquivo obrigatório" }, { status: 400 });
   }
 
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  if (!allowedTypes.includes(file.type)) {
+    return NextResponse.json(
+      { error: "Formato inválido. Use JPG, PNG, WebP ou GIF." },
+      { status: 400 }
+    );
+  }
+
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return NextResponse.json(
+      { error: "A imagem deve ter no máximo 5 MB." },
+      { status: 400 }
+    );
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const ext = path.extname(file.name) || ".jpg";

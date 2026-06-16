@@ -15,7 +15,7 @@ export default async function CategoriesPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Categorias</h1>
+      <h1 className="mb-4 text-2xl font-bold dark:text-zinc-100">Categorias</h1>
       <CategoryManager initial={categories} />
     </div>
   );

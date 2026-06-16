@@ -27,23 +27,23 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Pedidos</h1>
+      <h1 className="mb-4 text-2xl font-bold dark:text-zinc-100">Pedidos</h1>
       {orders.length === 0 ? (
-        <p className="text-zinc-500">Nenhum pedido ainda.</p>
+        <p className="text-zinc-500 dark:text-zinc-400">Nenhum pedido ainda.</p>
       ) : (
         <ul className="space-y-3">
           {orders.map((o) => (
-            <li key={o.id} className="rounded-2xl bg-white p-4 shadow-sm">
+            <li key={o.id} className="admin-card p-4">
               <div className="flex justify-between">
-                <span className="font-mono text-sm">#{o.id.slice(-8)}</span>
-                <span className="text-sm font-medium">
+                <span className="font-mono text-sm dark:text-zinc-300">#{o.id.slice(-8)}</span>
+                <span className="text-sm font-medium dark:text-zinc-200">
                   {statusLabels[o.status] ?? o.status}
                 </span>
               </div>
-              <p className="mt-1 font-bold text-emerald-700">
+              <p className="mt-1 font-bold text-emerald-700 dark:text-emerald-400">
                 {formatPrice(o.totalCents)}
               </p>
-              <ul className="mt-2 text-sm text-zinc-600">
+              <ul className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                 {o.items.map((i) => (
                   <li key={i.id}>
                     {i.quantity}x {i.productName}

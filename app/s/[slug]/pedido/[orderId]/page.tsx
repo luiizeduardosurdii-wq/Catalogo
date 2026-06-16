@@ -26,7 +26,22 @@ export default function OrderPage() {
 
   useEffect(() => {
     const raw = sessionStorage.getItem(`order-${orderId}`);
-    if (raw) setOrder(JSON.parse(raw));
+    if (raw) {
+      setOrder(JSON.parse(raw));
+      return;
+    }
+
+    fetch(`/api/orders/${orderId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        setOrder({
+          orderId: data.id,
+          totalCents: data.totalCents,
+          pixCopyPaste: data.payment?.pixCopyPaste ?? "",
+          expiresAt: new Date().toISOString(),
+        });
+      });
   }, [orderId]);
 
   const pollStatus = useCallback(async () => {
