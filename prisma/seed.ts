@@ -160,12 +160,23 @@ const products = [
 async function main() {
   const passwordHash = await bcrypt.hash("admin123", 10);
 
-  const store = await prisma.store.upsert({
+  const legacyStore = await prisma.store.findUnique({
     where: { slug: "minha-loja" },
-    update: { name: "SaboArt" },
+  });
+
+  if (legacyStore && legacyStore.slug !== "saboart") {
+    await prisma.store.update({
+      where: { id: legacyStore.id },
+      data: { name: "SaboArt da Dag", slug: "saboart" },
+    });
+  }
+
+  const store = await prisma.store.upsert({
+    where: { slug: "saboart" },
+    update: { name: "SaboArt da Dag" },
     create: {
-      name: "SaboArt",
-      slug: "minha-loja",
+      name: "SaboArt da Dag",
+      slug: "saboart",
       whatsapp: "5511999999999",
       active: true,
     },
@@ -245,7 +256,7 @@ async function main() {
 
   console.log("Seed concluído:");
   console.log(`  ${products.length} produtos com imagens`);
-  console.log("  Loja: /s/minha-loja");
+  console.log("  Loja: /s/saboart");
   console.log("  Admin: admin@loja.com / admin123");
 }
 

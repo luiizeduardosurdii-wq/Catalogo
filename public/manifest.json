@@ -2,7 +2,7 @@
   "name": "SaboArt",
   "short_name": "SaboArt",
   "description": "Catálogo SaboArt — sabonetes, sachês e sprays",
-  "start_url": "/",
+  "start_url": "/s/saboart",
   "display": "standalone",
   "background_color": "#fafafa",
   "theme_color": "#059669",

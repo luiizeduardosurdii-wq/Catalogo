@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { ProductCard, type CatalogProduct } from "@/components/ProductCard";
 import { CartSidebar } from "@/components/CartSidebar";
 import { BrandLogo } from "@/components/BrandLogo";
+import { CatalogHero } from "@/components/catalog/CatalogHero";
+import { formatPrice } from "@/lib/format";
 import type { CartItem } from "@/components/CartDrawer";
 
 type Category = { id: string; name: string; slug: string };
@@ -15,7 +17,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 const GRID_CLASS =
-  "grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5";
+  "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4";
 
 export function CatalogView({
   storeName,
@@ -95,6 +97,8 @@ export function CatalogView({
     return map;
   }, [cart]);
 
+  const cartItemCount = cart.reduce((s, i) => s + i.quantity, 0);
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3500);
@@ -130,13 +134,25 @@ export function CatalogView({
     );
   }
 
-  function buildWhatsAppMessage() {
-    const lines = cart.map(
-      (i) =>
-        `• ${i.quantity}x ${i.product.name} - ${(i.product.priceCents * i.quantity / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`
+  function updateNotes(productId: string, notes: string) {
+    setCart((prev) =>
+      prev.map((i) =>
+        i.product.id === productId ? { ...i, notes: notes || undefined } : i
+      )
     );
+  }
+
+  function removeFromCart(productId: string) {
+    setCart((prev) => prev.filter((i) => i.product.id !== productId));
+  }
+
+  function buildWhatsAppMessage() {
+    const lines = cart.map((i) => {
+      const line = `• ${i.quantity}x ${i.product.name} - ${formatPrice(i.product.priceCents * i.quantity)}`;
+      return i.notes?.trim() ? `${line}\n  _Obs.: ${i.notes.trim()}_` : line;
+    });
     return encodeURIComponent(
-      `Olá! Gostaria de pedir:\n\n${lines.join("\n")}\n\n*Total: ${(cartTotal / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}*`
+      `Olá! Gostaria de pedir:\n\n${lines.join("\n")}\n\n*Total: ${formatPrice(cartTotal)}*`
     );
   }
 
@@ -185,111 +201,131 @@ export function CatalogView({
     <div className="min-h-screen bg-zinc-50">
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white shadow-sm">
-          <div className="flex items-start justify-between gap-3 px-4 py-3">
-            <div className="min-w-0 shrink-0">
-              <BrandLogo size="md" priority />
-              <p className="mt-1 text-xs text-zinc-500">
-                Sabonetes, sachês e sprays
-              </p>
-            </div>
+          <div className="relative px-4 pb-1 pt-3">
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="absolute right-4 top-3 z-10 flex items-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-md transition-colors touch-manipulation hover:bg-emerald-700 active:bg-emerald-800 sm:px-4"
+              aria-label={
+                cartItemCount > 0
+                  ? `Abrir carrinho com ${cartItemCount} itens`
+                  : "Abrir carrinho"
+              }
+            >
+              <span className="text-base leading-none" aria-hidden>
+                🛒
+              </span>
+              <span className="hidden sm:inline">Carrinho</span>
+              {cartItemCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold text-emerald-700">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
 
-            <div className="flex min-w-0 flex-col items-end gap-2">
-              <div className="flex max-w-full items-center justify-end gap-1.5">
-                <div className="flex gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="logo-container">
+              <BrandLogo size="hero" centered priority />
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-100 px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <button
+                  type="button"
+                  onClick={() => setCategoryId(null)}
+                  className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
+                    !categoryId
+                      ? "bg-emerald-600 text-white"
+                      : "bg-zinc-100 text-zinc-700"
+                  }`}
+                >
+                  Todos
+                </button>
+                {categories.map((c) => (
                   <button
+                    key={c.id}
                     type="button"
-                    onClick={() => setCategoryId(null)}
+                    onClick={() => setCategoryId(c.id)}
                     className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
-                      !categoryId
+                      categoryId === c.id
                         ? "bg-emerald-600 text-white"
                         : "bg-zinc-100 text-zinc-700"
                     }`}
                   >
-                    Todos
+                    {c.name}
                   </button>
-                  {categories.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setCategoryId(c.id)}
-                      className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
-                        categoryId === c.id
-                          ? "bg-emerald-600 text-white"
-                          : "bg-zinc-100 text-zinc-700"
-                      }`}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSearchOpen((open) => !open)}
-                  aria-label={searchOpen ? "Fechar busca" : "Buscar produtos"}
-                  aria-expanded={searchOpen}
-                  className={`shrink-0 touch-manipulation rounded-full p-2 transition-colors ${
-                    searchOpen || search
-                      ? "bg-emerald-600 text-white"
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                  }`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
-                    aria-hidden
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                  </svg>
-                </button>
+                ))}
               </div>
 
-              {searchOpen && (
-                <div className="flex w-full min-w-[180px] max-w-xs items-center gap-1.5 sm:min-w-[220px]">
-                  <input
-                    type="search"
-                    placeholder="Buscar produtos..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                    className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                  />
-                  {search && (
-                    <button
-                      type="button"
-                      onClick={() => setSearch("")}
-                      aria-label="Limpar busca"
-                      className="shrink-0 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="h-4 w-4"
-                        aria-hidden
-                      >
-                        <path d="M18 6 6 18M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setSearchOpen((open) => !open)}
+                aria-label={searchOpen ? "Fechar busca" : "Buscar produtos"}
+                aria-expanded={searchOpen}
+                className={`shrink-0 touch-manipulation rounded-full p-2 transition-colors ${
+                  searchOpen || search
+                    ? "bg-emerald-600 text-white"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                  aria-hidden
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </button>
             </div>
+
+            {searchOpen && (
+              <div className="mt-2 flex items-center gap-1.5">
+                <input
+                  type="search"
+                  placeholder="Buscar produtos..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  autoFocus
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    aria-label="Limpar busca"
+                    className="shrink-0 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-4 w-4"
+                      aria-hidden
+                    >
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </header>
 
+        <CatalogHero />
+
         {toast && !cartOpen && (
           <div
-            className="fixed left-4 right-20 top-20 z-40 mx-auto max-w-md"
+            className="fixed left-4 right-4 top-[22rem] z-40 mx-auto max-w-md sm:top-80"
             role="status"
           >
             <button
@@ -305,7 +341,7 @@ export function CatalogView({
           </div>
         )}
 
-        <main className="relative z-10 flex-1 p-2">
+        <main id="catalog-products" className="relative z-10 flex-1 scroll-mt-4 p-2 pt-3">
           {filtered.length === 0 ? (
             <p className="py-12 text-center text-sm text-zinc-500">
               Nenhum produto encontrado
@@ -334,7 +370,7 @@ export function CatalogView({
                       </p>
                     </div>
                   </div>
-                  <div className="p-2.5">{renderProductGrid(catProducts)}</div>
+                  <div className="p-3 sm:p-4">{renderProductGrid(catProducts)}</div>
                 </section>
               ))}
             </div>
@@ -347,6 +383,8 @@ export function CatalogView({
       <CartSidebar
         items={cart}
         onUpdateQty={updateQty}
+        onUpdateNotes={updateNotes}
+        onRemove={removeFromCart}
         onWhatsApp={openWhatsApp}
         onCheckout={goCheckout}
         paymentsEnabled={paymentsEnabled}

@@ -31,6 +31,15 @@ body {
   .admin-input {
     @apply rounded-xl border border-zinc-200 bg-white px-3 py-2 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100;
   }
+  .logo-container {
+    @apply flex justify-center py-5;
+  }
+  .logo-container img {
+    @apply h-[100px] w-auto bg-transparent;
+  }
+  .catalog-card {
+    @apply transition-all duration-300 hover:-translate-y-[5px] hover:border-emerald-200/80 hover:shadow-[0_15px_30px_rgba(0,0,0,0.1)];
+  }
 }
 
 button,

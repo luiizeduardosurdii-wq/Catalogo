@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import type { StockStatus } from "@/lib/format";
+import { splitProductDescription } from "@/lib/productDisplay";
 import { StockBadge } from "./StockBadge";
 
 export type CatalogProduct = {
@@ -17,6 +18,14 @@ export type CatalogProduct = {
   available: number;
 };
 
+type ImageKind = "photo" | "icon" | "none";
+
+function getImageKind(imageUrl: string | null): ImageKind {
+  if (!imageUrl) return "none";
+  if (imageUrl.startsWith("/uploads/")) return "photo";
+  return "icon";
+}
+
 export function ProductCard({
   product,
   onAdd,
@@ -27,7 +36,8 @@ export function ProductCard({
   inCartQty?: number;
 }) {
   const outOfStock = product.stockStatus === "out_of_stock";
-  const isUploadedPhoto = product.imageUrl?.startsWith("/uploads/") ?? false;
+  const imageKind = getImageKind(product.imageUrl);
+  const { subtitle, sizeLabel } = splitProductDescription(product.description);
 
   function handleAdd() {
     if (outOfStock || !onAdd) return;
@@ -35,50 +45,74 @@ export function ProductCard({
   }
 
   return (
-    <article className="relative flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="relative mx-auto aspect-square w-full max-h-40 shrink-0 p-1 sm:max-h-48">
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-zinc-50">
-          {product.imageUrl ? (
+    <article className="catalog-card group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-100">
+        {imageKind === "photo" && product.imageUrl && (
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            draggable={false}
+            unoptimized
+          />
+        )}
+
+        {imageKind === "icon" && product.imageUrl && (
+          <div className="flex h-full items-center justify-center bg-gradient-to-b from-zinc-50 to-zinc-100 p-8 transition-colors duration-300 group-hover:from-emerald-50/40 group-hover:to-zinc-100">
             <Image
               src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="pointer-events-none select-none object-contain p-1 sm:p-1.5"
-              sizes="(max-width: 768px) 32vw, 180px"
+              alt=""
+              width={72}
+              height={72}
+              className="opacity-50 transition-opacity duration-300 group-hover:opacity-70"
               draggable={false}
-              unoptimized={isUploadedPhoto}
+              unoptimized
             />
-          ) : (
-            <div className="flex h-full items-center justify-center text-xl text-zinc-300 pointer-events-none select-none">
-              📦
-            </div>
-          )}
+          </div>
+        )}
+
+        {imageKind === "none" && (
+          <div className="flex h-full items-center justify-center bg-gradient-to-b from-zinc-50 to-zinc-100 text-4xl text-zinc-300 transition-colors duration-300 group-hover:from-emerald-50/40 group-hover:to-zinc-100">
+            📦
+          </div>
+        )}
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+        <div className="absolute left-2 top-2 z-10">
+          <StockBadge
+            status={product.stockStatus}
+            available={product.available}
+            compact
+            overlay
+          />
         </div>
+
         {inCartQty > 0 && (
-          <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow">
-            {inCartQty}
+          <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-md">
+            {inCartQty} no carrinho
           </span>
         )}
       </div>
 
-      <div className="flex flex-col gap-1 p-2">
-        <h3 className="line-clamp-2 text-xs font-semibold leading-snug text-zinc-900">
+      <div className="flex flex-1 flex-col gap-1 p-3.5">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 transition-colors group-hover:text-emerald-800">
           {product.name}
         </h3>
 
-        <StockBadge
-          status={product.stockStatus}
-          available={product.available}
-          compact
-        />
-
-        {product.description && (
-          <p className="line-clamp-1 text-[10px] text-zinc-500">
-            {product.description}
+        {subtitle && (
+          <p className="line-clamp-2 text-xs leading-relaxed text-zinc-500">
+            {subtitle}
           </p>
         )}
 
-        <p className="text-sm font-bold text-emerald-700">
+        {sizeLabel && (
+          <p className="text-xs font-medium text-zinc-400">{sizeLabel}</p>
+        )}
+
+        <p className="pt-1 text-lg font-bold tracking-tight text-emerald-700">
           {formatPrice(product.priceCents)}
         </p>
 
@@ -87,13 +121,13 @@ export function ProductCard({
             type="button"
             disabled={outOfStock}
             onClick={handleAdd}
-            className="w-full rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white shadow-sm touch-manipulation select-none active:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-zinc-300"
+            className="mt-1 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors touch-manipulation select-none hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:shadow-none"
           >
             {outOfStock
-              ? "Esgotado"
+              ? "Indisponível"
               : inCartQty > 0
-                ? `+ (${inCartQty})`
-                : "Adicionar"}
+                ? `🛒 Adicionar ao carrinho (${inCartQty})`
+                : "🛒 Adicionar ao carrinho"}
           </button>
         )}
       </div>

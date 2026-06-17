@@ -7,6 +7,7 @@ import type { CatalogProduct } from "./ProductCard";
 export type CartItem = {
   product: CatalogProduct;
   quantity: number;
+  notes?: string;
 };
 
 export function CartDrawer({

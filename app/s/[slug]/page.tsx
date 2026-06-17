@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `${config.appUrl}/s/${slug}`;
   return {
     title: `${store.name} | Catálogo`,
-    description: `Confira o catálogo de ${store.name}. Bebidas, comidas, eletrônicos e mais.`,
+    description: `Confira o catálogo de ${store.name}. Sabonetes, sachês perfumados e sprays.`,
     openGraph: {
       title: store.name,
       description: `Catálogo online de ${store.name}`,
