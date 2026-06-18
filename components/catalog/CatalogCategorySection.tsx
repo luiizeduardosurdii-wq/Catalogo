@@ -1,0 +1,138 @@
+"use client";
+
+import type { ReactNode } from "react";
+
+const CATEGORY_ICONS: Record<string, string> = {
+  sabonetes: "🧼",
+  "sache-perfumado": "🌸",
+  spray: "💨",
+};
+
+function LeafIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 80 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M40 8C26 24 14 34 10 48c-3 10 2 22 16 26 8 2 18 2 26-2 14-6 20-18 16-28-4-12-14-22-28-36z"
+        fill="#14532D"
+      />
+      <path
+        d="M40 18c-6 8-12 14-14 22 6-2 12-6 16-12 2-4 0-8-2-10z"
+        fill="#0E9F6E"
+      />
+    </svg>
+  );
+}
+
+function LavenderIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M32 8c-2 8-6 14-6 22 0 4 2 8 6 10 4-2 6-6 6-10 0-8-4-14-6-22z"
+        fill="#0E9F6E"
+        opacity="0.35"
+      />
+      <circle cx="32" cy="42" r="4" fill="#14532D" opacity="0.2" />
+      <path
+        d="M32 46v12M28 50l4-2 4 2M26 54l6-1 6 1"
+        stroke="#14532D"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.25"
+      />
+    </svg>
+  );
+}
+
+type CatalogCategorySectionProps = {
+  name: string;
+  slug: string;
+  productCount: number;
+  animationIndex?: number;
+  children: ReactNode;
+};
+
+export function CatalogCategorySection({
+  name,
+  slug,
+  productCount,
+  animationIndex = 0,
+  children,
+}: CatalogCategorySectionProps) {
+  const countLabel =
+    productCount === 1 ? "1 produto" : `${productCount} produtos`;
+
+  return (
+    <section
+      className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-cream via-white to-brand-beige opacity-0 shadow-[0_4px_6px_rgba(20,83,45,0.04),0_20px_48px_rgba(14,159,110,0.08)] animate-fade-in-up motion-reduce:animate-none motion-reduce:opacity-100"
+      style={{ animationDelay: `${200 + animationIndex * 120}ms` }}
+    >
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-brand/10 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-8 left-8 h-28 w-28 rounded-full bg-brand-light/80 blur-2xl"
+        aria-hidden
+      />
+
+      <div className="relative overflow-hidden border-b border-brand/10 bg-gradient-to-r from-brand-light via-[#F0FDF4] to-brand-cream">
+        <LeafIcon className="pointer-events-none absolute -right-1 top-0 h-16 w-16 rotate-[15deg] opacity-[0.11]" />
+        <LeafIcon className="pointer-events-none absolute -bottom-3 left-2 h-12 w-12 -scale-x-100 rotate-[-25deg] opacity-[0.07]" />
+        <LavenderIcon className="pointer-events-none absolute right-16 top-2 h-10 w-10 opacity-60" />
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-brand/5" />
+
+        <div className="relative z-10 flex items-center gap-3 px-4 py-4 backdrop-blur-md bg-brand-cream/55 sm:px-5 sm:py-4">
+          <span
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-white/85 text-xl shadow-[0_4px_16px_rgba(14,159,110,0.1)] backdrop-blur-sm"
+            aria-hidden
+          >
+            {CATEGORY_ICONS[slug] ?? "📦"}
+          </span>
+
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold tracking-tight text-brand-dark sm:text-lg">
+              {name}
+            </h2>
+          </div>
+
+          <span className="shrink-0 rounded-full border border-brand/15 bg-white/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-dark shadow-sm backdrop-blur-sm sm:text-xs">
+            {countLabel}
+          </span>
+        </div>
+      </div>
+
+      <div className="relative bg-gradient-to-b from-brand-light/50 via-brand-cream/30 to-white p-3 sm:p-5">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"
+          aria-hidden
+        />
+        {children}
+      </div>
+    </section>
+  );
+}
+
+export function CatalogProductsShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-cream via-white to-brand-beige p-3 shadow-[0_4px_6px_rgba(20,83,45,0.04),0_20px_48px_rgba(14,159,110,0.08)] sm:p-5">
+      <div
+        className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand/8 blur-3xl"
+        aria-hidden
+      />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}

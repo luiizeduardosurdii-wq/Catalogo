@@ -26,13 +26,29 @@ function getImageKind(imageUrl: string | null): ImageKind {
   return "icon";
 }
 
+function ProductImagePlaceholder({ kind }: { kind: "icon" | "none" }) {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-brand-cream via-brand-light/80 to-brand-beige">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(14,159,110,0.08),transparent_55%)]" />
+      <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent motion-reduce:animate-none" />
+      {kind === "none" ? (
+        <span className="relative text-4xl opacity-40">🌿</span>
+      ) : (
+        <div className="relative h-10 w-10 rounded-full border-2 border-brand/20 border-t-brand animate-spin motion-reduce:animate-none" />
+      )}
+    </div>
+  );
+}
+
 export function ProductCard({
   product,
   onAdd,
+  onOpen,
   inCartQty = 0,
 }: {
   product: CatalogProduct;
   onAdd?: (product: CatalogProduct) => void;
+  onOpen?: (product: CatalogProduct) => void;
   inCartQty?: number;
 }) {
   const outOfStock = product.stockStatus === "out_of_stock";
@@ -44,93 +60,120 @@ export function ProductCard({
     onAdd(product);
   }
 
+  function handleOpen() {
+    onOpen?.(product);
+  }
+
   return (
-    <article className="catalog-card group relative flex flex-col overflow-hidden">
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-100">
-        {imageKind === "photo" && product.imageUrl && (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            draggable={false}
-            unoptimized
-          />
-        )}
+    <article className="group relative flex flex-col overflow-hidden rounded-[22px] border border-[#E8E3D9]/90 bg-white/95 shadow-[0_8px_30px_rgba(14,159,110,0.07)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/25 hover:shadow-[0_22px_50px_rgba(14,159,110,0.14)] sm:rounded-3xl">
+      <div
+        className="pointer-events-none absolute inset-0 z-10 rounded-[22px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-3xl bg-gradient-to-br from-white/50 via-transparent to-brand/5"
+        aria-hidden
+      />
 
-        {imageKind === "icon" && product.imageUrl && (
-          <div className="flex h-full items-center justify-center bg-gradient-to-b from-zinc-50 to-zinc-100 p-8 transition-colors duration-300 group-hover:from-emerald-50/40 group-hover:to-zinc-100">
-            <Image
-              src={product.imageUrl}
-              alt=""
-              width={72}
-              height={72}
-              className="opacity-50 transition-opacity duration-300 group-hover:opacity-70"
-              draggable={false}
-              unoptimized
-            />
+      <button
+        type="button"
+        onClick={handleOpen}
+        className="flex flex-1 flex-col text-left touch-manipulation"
+        aria-label={`Ver detalhes de ${product.name}`}
+      >
+        <div className="relative p-2.5 pb-0 sm:p-3 sm:pb-0">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-brand-light/50 shadow-inner">
+            {imageKind === "photo" && product.imageUrl && (
+              <>
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  draggable={false}
+                  unoptimized
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/15 via-transparent to-white/10" />
+              </>
+            )}
+
+            {imageKind === "icon" && product.imageUrl && (
+              <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-cream via-brand-light/80 to-brand-beige transition-colors duration-300 group-hover:from-[#F0FDF4] group-hover:to-brand-light">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(14,159,110,0.1),transparent_55%)]" />
+                <Image
+                  src={product.imageUrl}
+                  alt=""
+                  width={80}
+                  height={80}
+                  className="relative opacity-55 transition-all duration-300 group-hover:scale-105 group-hover:opacity-75"
+                  draggable={false}
+                  unoptimized
+                />
+              </div>
+            )}
+
+            {imageKind === "none" && <ProductImagePlaceholder kind="none" />}
+
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+            <div className="absolute left-2 top-2 z-20">
+              <StockBadge
+                status={product.stockStatus}
+                available={product.available}
+                compact
+                overlay
+              />
+            </div>
+
+            {inCartQty > 0 && (
+              <span className="absolute right-2 top-2 z-20 rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(14,159,110,0.35)]">
+                {inCartQty} no carrinho
+              </span>
+            )}
           </div>
-        )}
-
-        {imageKind === "none" && (
-          <div className="flex h-full items-center justify-center bg-gradient-to-b from-zinc-50 to-zinc-100 text-4xl text-zinc-300 transition-colors duration-300 group-hover:from-emerald-50/40 group-hover:to-zinc-100">
-            📦
-          </div>
-        )}
-
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-        <div className="absolute left-2 top-2 z-10">
-          <StockBadge
-            status={product.stockStatus}
-            available={product.available}
-            compact
-            overlay
-          />
         </div>
 
-        {inCartQty > 0 && (
-          <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-md">
-            {inCartQty} no carrinho
-          </span>
-        )}
-      </div>
+        <div className="relative flex flex-col gap-1.5 p-3.5 pt-3 sm:p-4 sm:pt-3.5">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-brand-dark transition-colors duration-200 group-hover:text-brand">
+            {product.name}
+          </h3>
 
-      <div className="flex flex-1 flex-col gap-1 p-3.5">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 transition-colors group-hover:text-emerald-800">
-          {product.name}
-        </h3>
+          {subtitle && (
+            <p className="line-clamp-2 text-xs leading-relaxed text-[#6B7280]">
+              {subtitle}
+            </p>
+          )}
 
-        {subtitle && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-[#6B7280]">
-            {subtitle}
-          </p>
-        )}
+          {sizeLabel && (
+            <p className="text-[11px] font-medium uppercase tracking-wide text-[#6B7280]/80">
+              {sizeLabel}
+            </p>
+          )}
 
-        {sizeLabel && (
-          <p className="text-xs font-medium text-zinc-400">{sizeLabel}</p>
-        )}
+          <div className="mt-auto flex items-end justify-between gap-2 border-t border-brand-light/80 pt-3">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand/80">
+              Valor
+            </span>
+            <p className="text-lg font-bold tabular-nums tracking-tight text-brand-dark sm:text-xl">
+              {formatPrice(product.priceCents)}
+            </p>
+          </div>
+        </div>
+      </button>
 
-        <p className="pt-1 text-lg font-bold tracking-tight text-[#0E9F6E]">
-          {formatPrice(product.priceCents)}
-        </p>
-
-        {onAdd && (
+      {onAdd && (
+        <div className="px-3.5 pb-3.5 sm:px-4 sm:pb-4">
           <button
             type="button"
             disabled={outOfStock}
             onClick={handleAdd}
-            className="mt-1 w-full rounded-xl bg-[#0E9F6E] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors touch-manipulation select-none hover:bg-[#0b8a5f] active:bg-[#14532D] disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:shadow-none"
+            className="w-full rounded-2xl bg-gradient-to-r from-brand-dark to-brand py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(14,159,110,0.28)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:from-[#0b8a5f] hover:to-[#12b981] hover:shadow-[0_10px_28px_rgba(14,159,110,0.38)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none touch-manipulation select-none"
           >
             {outOfStock
               ? "Indisponível"
               : inCartQty > 0
-                ? `🛒 Adicionar ao carrinho (${inCartQty})`
-                : "🛒 Adicionar ao carrinho"}
+                ? `Adicionar ao carrinho (${inCartQty})`
+                : "Adicionar ao carrinho"}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </article>
   );
 }

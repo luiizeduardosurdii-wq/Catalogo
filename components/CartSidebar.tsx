@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import { splitProductDescription } from "@/lib/productDisplay";
@@ -16,7 +16,7 @@ function CartProductThumb({
   const isPhoto = imageUrl?.startsWith("/uploads/") ?? false;
 
   return (
-    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-zinc-200">
+    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-brand-light/60 ring-1 ring-brand/15">
       {isPhoto && imageUrl ? (
         <Image
           src={imageUrl}
@@ -38,8 +38,8 @@ function CartProductThumb({
           />
         </div>
       ) : (
-        <div className="flex h-full items-center justify-center text-xl text-zinc-300">
-          📦
+        <div className="flex h-full items-center justify-center text-xl text-brand/30">
+          🌿
         </div>
       )}
     </div>
@@ -83,27 +83,27 @@ function CartLineItem({
   const lineTotal = item.product.priceCents * item.quantity;
 
   return (
-    <li className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-3">
+    <li className="rounded-2xl border border-brand/10 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
       <div className="flex gap-3">
         <CartProductThumb
           imageUrl={item.product.imageUrl}
           name={item.product.name}
         />
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900">
+          <p className="line-clamp-2 text-sm font-semibold leading-snug text-brand-dark">
             {item.product.name}
           </p>
           {sizeLabel && (
-            <p className="mt-0.5 text-xs text-zinc-500">{sizeLabel}</p>
+            <p className="mt-0.5 text-xs text-[#6B7280]">{sizeLabel}</p>
           )}
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-1 text-sm text-[#6B7280]">
             {formatPrice(item.product.priceCents)}
             {item.quantity > 1 && (
-              <span className="text-zinc-400"> × {item.quantity}</span>
+              <span className="text-[#6B7280]/70"> × {item.quantity}</span>
             )}
           </p>
           {item.quantity > 1 && (
-            <p className="mt-0.5 text-sm font-semibold text-emerald-700">
+            <p className="mt-0.5 text-sm font-semibold text-brand">
               Subtotal: {formatPrice(lineTotal)}
             </p>
           )}
@@ -113,7 +113,7 @@ function CartLineItem({
       <div className="mt-3">
         <label
           htmlFor={`cart-notes-${item.product.id}`}
-          className="mb-1 block text-[11px] font-medium text-zinc-500"
+          className="mb-1 block text-[11px] font-medium text-[#6B7280]"
         >
           Observações
         </label>
@@ -123,7 +123,7 @@ function CartLineItem({
           value={item.notes ?? ""}
           onChange={(e) => onUpdateNotes(item.product.id, e.target.value)}
           placeholder="Ex.: Sem fragrância"
-          className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full rounded-xl border border-brand/15 bg-brand-cream px-2.5 py-1.5 text-xs text-brand-dark placeholder:text-[#6B7280]/60 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </div>
 
@@ -131,18 +131,18 @@ function CartLineItem({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-lg font-bold text-white shadow-sm transition-colors touch-manipulation hover:bg-emerald-700 active:bg-emerald-800"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-brand-dark to-brand text-lg font-bold text-white shadow-sm transition-all hover:shadow-md active:scale-95 touch-manipulation"
             onClick={() => onUpdateQty(item.product.id, item.quantity - 1)}
             aria-label="Diminuir quantidade"
           >
             −
           </button>
-          <span className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-emerald-50 px-2 text-base font-bold text-emerald-800 ring-1 ring-emerald-200">
+          <span className="flex h-9 min-w-9 items-center justify-center rounded-xl bg-brand-light px-2 text-base font-bold text-brand-dark ring-1 ring-brand/15">
             {item.quantity}
           </span>
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-lg font-bold text-white shadow-sm transition-colors touch-manipulation hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-brand-dark to-brand text-lg font-bold text-white shadow-sm transition-all hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 touch-manipulation"
             onClick={() => onUpdateQty(item.product.id, item.quantity + 1)}
             disabled={item.quantity >= item.product.available}
             aria-label="Aumentar quantidade"
@@ -154,7 +154,7 @@ function CartLineItem({
         <button
           type="button"
           onClick={() => onRemove(item.product.id)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition-colors touch-manipulation hover:bg-red-100 active:bg-red-200"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-red-200/80 bg-red-50/80 text-red-600 transition-colors touch-manipulation hover:bg-red-100 active:bg-red-200"
           aria-label={`Remover ${item.product.name} do carrinho`}
         >
           <TrashIcon />
@@ -192,18 +192,18 @@ function CartPanel({
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   return (
-    <div className="flex h-full flex-col bg-white">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-200 px-4 py-3">
+    <div className="flex h-full flex-col bg-gradient-to-b from-brand-cream via-white to-brand-light/40">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-brand/10 bg-brand-cream/80 px-4 py-4 backdrop-blur-md">
         <div>
-          <h2 className="text-base font-bold text-zinc-900">Carrinho</h2>
-          <p className="text-xs text-zinc-500">
+          <h2 className="text-base font-bold text-brand-dark">Carrinho</h2>
+          <p className="text-xs text-[#6B7280]">
             {itemCount} {itemCount === 1 ? "item" : "itens"}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 touch-manipulation"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-brand/15 bg-white/80 text-brand-dark transition-colors hover:bg-brand-light/50 touch-manipulation"
           aria-label="Fechar carrinho"
         >
           ✕
@@ -216,16 +216,16 @@ function CartPanel({
             <span className="text-4xl" aria-hidden>
               🛒
             </span>
-            <p className="mt-4 text-base font-semibold text-zinc-800">
+            <p className="mt-4 text-base font-semibold text-brand-dark">
               Seu carrinho está vazio
             </p>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-[#6B7280]">
               Adicione alguns produtos para começar.
             </p>
             <button
               type="button"
               onClick={onBrowseProducts}
-              className="mt-6 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors touch-manipulation hover:bg-emerald-700"
+              className="mt-6 rounded-2xl bg-gradient-to-r from-brand-dark to-brand px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(14,159,110,0.28)] touch-manipulation"
             >
               Ver Produtos
             </button>
@@ -247,16 +247,18 @@ function CartPanel({
 
       {items.length > 0 && (
         <div
-          className="shrink-0 space-y-3 border-t border-zinc-200 p-4"
+          className="shrink-0 space-y-3 border-t border-brand/10 bg-brand-cream/90 p-4 backdrop-blur-md"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
           <div className="space-y-1.5 text-sm">
-            <div className="flex items-center justify-between text-zinc-600">
+            <div className="flex items-center justify-between text-[#6B7280]">
               <span>Subtotal</span>
-              <span className="font-medium">{formatPrice(subtotal)}</span>
+              <span className="font-medium text-brand-dark">
+                {formatPrice(subtotal)}
+              </span>
             </div>
-            <div className="border-t border-dashed border-zinc-200" />
-            <div className="flex items-center justify-between font-bold text-zinc-900">
+            <div className="border-t border-dashed border-brand/15" />
+            <div className="flex items-center justify-between font-bold text-brand-dark">
               <span>Total</span>
               <span className="text-base">{formatPrice(subtotal)}</span>
             </div>
@@ -265,7 +267,7 @@ function CartPanel({
           <button
             type="button"
             onClick={onWhatsApp}
-            className="w-full rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white shadow-sm transition-colors touch-manipulation hover:bg-[#20bd5a] active:bg-[#1da851]"
+            className="w-full rounded-2xl bg-[#25D366] py-3 text-sm font-bold text-white shadow-[0_6px_20px_rgba(37,211,102,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#20bd5a] active:scale-[0.98] touch-manipulation"
           >
             Finalizar Pedido no WhatsApp
           </button>
@@ -273,7 +275,7 @@ function CartPanel({
             <button
               type="button"
               onClick={onCheckout}
-              className="w-full rounded-xl border-2 border-emerald-600 bg-white py-2.5 text-sm font-semibold text-emerald-700 transition-colors touch-manipulation hover:bg-emerald-50"
+              className="w-full rounded-2xl border-2 border-brand bg-white py-2.5 text-sm font-semibold text-brand-dark transition-colors touch-manipulation hover:bg-brand-light/50"
             >
               Pagar com PIX
             </button>
@@ -305,37 +307,74 @@ export function CartSidebar({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const [visible, setVisible] = useState(open);
+  const [isExiting, setIsExiting] = useState(false);
+
   useEffect(() => {
-    if (!open) return;
+    if (open) {
+      setIsExiting(false);
+      setVisible(true);
+      return;
+    }
+
+    if (!visible) return;
+
+    setIsExiting(true);
+    const timer = window.setTimeout(() => {
+      setVisible(false);
+      setIsExiting(false);
+    }, 380);
+
+    return () => window.clearTimeout(timer);
+  }, [open, visible]);
+
+  useEffect(() => {
+    if (!visible) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onOpenChange(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onOpenChange]);
+  }, [visible, onOpenChange]);
 
-  if (!open) return null;
+  if (!visible) return null;
+
+  const backdropAnimation = isExiting
+    ? "animate-cart-backdrop-out motion-reduce:animate-none"
+    : "animate-cart-backdrop-in motion-reduce:animate-none";
+
+  const panelAnimation = isExiting
+    ? "animate-cart-slide-out motion-reduce:animate-none"
+    : "animate-cart-slide-in motion-reduce:animate-none";
 
   return (
-    <div className="fixed inset-0 z-[110]" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[110] overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className={`absolute inset-0 bg-brand-dark/35 backdrop-blur-sm ${backdropAnimation}`}
         onClick={() => onOpenChange(false)}
         aria-label="Fechar carrinho"
       />
-      <div className="absolute inset-y-0 right-0 flex w-[min(360px,92vw)] flex-col bg-white shadow-2xl transition-transform">
-        <CartPanel
-          items={items}
-          onUpdateQty={onUpdateQty}
-          onUpdateNotes={onUpdateNotes}
-          onRemove={onRemove}
-          onCheckout={onCheckout}
-          onWhatsApp={onWhatsApp}
-          paymentsEnabled={paymentsEnabled}
-          onClose={() => onOpenChange(false)}
-          onBrowseProducts={() => onOpenChange(false)}
-        />
+      <div className="absolute inset-y-0 right-0 w-[min(360px,92vw)] overflow-hidden">
+        <div
+          className={`flex h-full w-full flex-col border-l border-white/60 shadow-2xl ${panelAnimation}`}
+        >
+          <CartPanel
+            items={items}
+            onUpdateQty={onUpdateQty}
+            onUpdateNotes={onUpdateNotes}
+            onRemove={onRemove}
+            onCheckout={onCheckout}
+            onWhatsApp={onWhatsApp}
+            paymentsEnabled={paymentsEnabled}
+            onClose={() => onOpenChange(false)}
+            onBrowseProducts={() => onOpenChange(false)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -3,21 +3,50 @@
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard, type CatalogProduct } from "@/components/ProductCard";
 import { CartSidebar } from "@/components/CartSidebar";
-import { BrandLogo } from "@/components/BrandLogo";
 import { CatalogHero } from "@/components/catalog/CatalogHero";
+import { CatalogFiltersBar } from "@/components/catalog/CatalogFiltersBar";
+import { FloatingCartButton } from "@/components/catalog/FloatingCartButton";
+import { FloatingWhatsAppButton } from "@/components/catalog/FloatingWhatsAppButton";
+import { ProductDetailModal } from "@/components/catalog/ProductDetailModal";
+import { CatalogFeaturedSection } from "@/components/catalog/CatalogFeaturedSection";
+import { CatalogEmptyState } from "@/components/catalog/CatalogEmptyState";
 import { formatPrice } from "@/lib/format";
+import { loadCart, saveCart } from "@/lib/cartStorage";
 import type { CartItem } from "@/components/CartDrawer";
+
+import {
+  CatalogCategorySection,
+  CatalogProductsShell,
+} from "@/components/catalog/CatalogCategorySection";
 
 type Category = { id: string; name: string; slug: string };
 
-const CATEGORY_ICONS: Record<string, string> = {
-  sabonetes: "🧼",
-  "sache-perfumado": "🌸",
-  spray: "💨",
-};
-
 const GRID_CLASS =
-  "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4";
+  "grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4";
+
+function pickFeaturedProducts(
+  products: CatalogProduct[],
+  categories: Category[]
+): CatalogProduct[] {
+  const inStock = products.filter((p) => p.stockStatus !== "out_of_stock");
+  const picked: CatalogProduct[] = [];
+
+  for (const cat of categories) {
+    const match = inStock.find((p) => p.categoryId === cat.id);
+    if (match && !picked.some((x) => x.id === match.id)) {
+      picked.push(match);
+    }
+  }
+
+  for (const product of inStock) {
+    if (picked.length >= 4) break;
+    if (!picked.some((x) => x.id === product.id)) {
+      picked.push(product);
+    }
+  }
+
+  return picked.slice(0, 4);
+}
 
 export function CatalogView({
   storeName,
@@ -39,26 +68,20 @@ export function CatalogView({
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [detailProduct, setDetailProduct] = useState<CatalogProduct | null>(
+    null
+  );
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    setCart(loadCart(storeSlug, products));
     setReady(true);
-    try {
-      const saved = sessionStorage.getItem(`cart-${storeSlug}`);
-      if (saved) setCart(JSON.parse(saved));
-    } catch {
-      /* ignore */
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- carregar uma vez por loja
   }, [storeSlug]);
 
   useEffect(() => {
     if (!ready) return;
-    try {
-      sessionStorage.setItem(`cart-${storeSlug}`, JSON.stringify(cart));
-    } catch {
-      /* ignore */
-    }
+    saveCart(storeSlug, cart);
   }, [cart, storeSlug, ready]);
 
   const filtered = useMemo(() => {
@@ -73,7 +96,7 @@ export function CatalogView({
   }, [products, categoryId, search]);
 
   const groupedByCategory = useMemo(() => {
-    if (categoryId) return null;
+    if (categoryId || search) return null;
     const groups: { category: Category; products: CatalogProduct[] }[] = [];
     for (const cat of categories) {
       const catProducts = filtered.filter((p) => p.categoryId === cat.id);
@@ -82,7 +105,15 @@ export function CatalogView({
       }
     }
     return groups;
-  }, [filtered, categories, categoryId]);
+  }, [filtered, categories, categoryId, search]);
+
+  const featuredProducts = useMemo(
+    () => pickFeaturedProducts(products, categories),
+    [products, categories]
+  );
+
+  const showFeatured =
+    !categoryId && !search.trim() && featuredProducts.length > 0;
 
   const cartTotal = cart.reduce(
     (s, i) => s + i.product.priceCents * i.quantity,
@@ -99,12 +130,6 @@ export function CatalogView({
 
   const cartItemCount = cart.reduce((s, i) => s + i.quantity, 0);
 
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3500);
-    return () => clearTimeout(t);
-  }, [toast]);
-
   function addToCart(product: CatalogProduct) {
     setCart((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
@@ -118,7 +143,10 @@ export function CatalogView({
       }
       return [...prev, { product, quantity: 1 }];
     });
-    setToast(`${product.name} adicionado!`);
+  }
+
+  function addToCartFromDetail(product: CatalogProduct) {
+    addToCart(product);
     setCartOpen(true);
   }
 
@@ -182,6 +210,7 @@ export function CatalogView({
             key={p.id}
             product={p}
             onAdd={addToCart}
+            onOpen={setDetailProduct}
             inCartQty={qtyByProduct[p.id] ?? 0}
           />
         ))}
@@ -199,189 +228,96 @@ export function CatalogView({
 
   return (
     <div className="catalog-page">
+      <FloatingCartButton
+        itemCount={cartItemCount}
+        onOpen={() => setCartOpen(true)}
+      />
+
+      <FloatingWhatsAppButton whatsapp={whatsapp} storeName={storeName} />
+
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <header className="catalog-header sticky top-0 z-20 border-b shadow-sm">
-          <div className="relative px-4 pb-1 pt-3">
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="catalog-btn-primary absolute right-4 top-3 z-10 flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold shadow-md touch-manipulation sm:px-4"
-              aria-label={
-                cartItemCount > 0
-                  ? `Abrir carrinho com ${cartItemCount} itens`
-                  : "Abrir carrinho"
-              }
-            >
-              <span className="text-base leading-none" aria-hidden>
-                🛒
-              </span>
-              <span className="hidden sm:inline">Carrinho</span>
-              {cartItemCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold text-[#0E9F6E]">
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
-
-            <div className="logo-container">
-              <BrandLogo size="hero" centered priority />
-            </div>
-          </div>
-
-          <div className="catalog-header-filters border-t px-4 py-2.5">
-            <div className="flex items-center gap-2">
-              <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button
-                  type="button"
-                  onClick={() => setCategoryId(null)}
-                  className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
-                    !categoryId
-                      ? "catalog-filter-active"
-                      : "catalog-filter-idle"
-                  }`}
-                >
-                  Todos
-                </button>
-                {categories.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setCategoryId(c.id)}
-                    className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
-                      categoryId === c.id
-                        ? "catalog-filter-active"
-                        : "catalog-filter-idle"
-                    }`}
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSearchOpen((open) => !open)}
-                aria-label={searchOpen ? "Fechar busca" : "Buscar produtos"}
-                aria-expanded={searchOpen}
-                className={`shrink-0 touch-manipulation rounded-full p-2 transition-colors ${
-                  searchOpen || search
-                    ? "catalog-filter-active"
-                    : "catalog-filter-idle"
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-              </button>
-            </div>
-
-            {searchOpen && (
-              <div className="mt-2 flex items-center gap-1.5">
-                <input
-                  type="search"
-                  placeholder="Buscar produtos..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  autoFocus
-                  className="catalog-input w-full rounded-lg border border-[#E8E3D9] bg-[#FFFDF8] px-3 py-2 text-sm text-[#14532D] focus:outline-none"
-                />
-                {search && (
-                  <button
-                    type="button"
-                    onClick={() => setSearch("")}
-                    aria-label="Limpar busca"
-                    className="shrink-0 rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="h-4 w-4"
-                      aria-hidden
-                    >
-                      <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </header>
-
         <CatalogHero />
 
-        {toast && !cartOpen && (
-          <div
-            className="fixed left-4 right-4 top-[22rem] z-40 mx-auto max-w-md sm:top-80"
-            role="status"
-          >
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="catalog-btn-primary flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left shadow-lg touch-manipulation"
-            >
-              <span className="text-xs font-medium">✓ {toast}</span>
-              <span className="shrink-0 rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold">
-                Ver →
-              </span>
-            </button>
-          </div>
-        )}
+        <CatalogFiltersBar
+          categories={categories}
+          categoryId={categoryId}
+          onCategoryChange={setCategoryId}
+          search={search}
+          onSearchChange={setSearch}
+          searchOpen={searchOpen}
+          onSearchOpenChange={setSearchOpen}
+        />
 
         <main
           id="catalog-products"
-          className="relative z-10 flex-1 scroll-mt-4 p-2 pt-3"
+          className="relative isolate flex-1 scroll-mt-4 px-2 pb-24 pt-3 sm:px-4 sm:pb-28"
         >
-          {filtered.length === 0 ? (
-            <p className="py-12 text-center text-sm text-zinc-500">
-              Nenhum produto encontrado
-            </p>
-          ) : groupedByCategory ? (
-            <div className="space-y-6">
-              {groupedByCategory.map(({ category, products: catProducts }) => (
-                <section
-                  key={category.id}
-                  className="overflow-hidden rounded-2xl border border-[#E8E3D9] bg-white shadow-sm"
-                >
-                  <div className="catalog-category-header flex items-center gap-3 px-4 py-4">
-                    <span
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-xl shadow-sm ring-1 ring-[#E8E3D9]"
-                      aria-hidden
-                    >
-                      {CATEGORY_ICONS[category.slug] ?? "📦"}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <h2 className="catalog-category-title text-base font-bold tracking-tight sm:text-lg">
-                        {category.name}
-                      </h2>
-                      <p className="catalog-category-meta mt-0.5 text-xs font-medium">
-                        {catProducts.length}{" "}
-                        {catProducts.length === 1 ? "produto" : "produtos"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="p-3 sm:p-4">{renderProductGrid(catProducts)}</div>
-                </section>
-              ))}
-            </div>
-          ) : (
-            renderProductGrid(filtered)
-          )}
+          <div
+            className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand-beige via-brand-cream to-brand-light/70"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -left-16 top-24 h-56 w-56 rounded-full bg-brand/5 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -right-12 bottom-32 h-48 w-48 rounded-full bg-brand-light blur-3xl"
+            aria-hidden
+          />
+
+          <div className="space-y-6 sm:space-y-8">
+            {showFeatured && (
+              <CatalogFeaturedSection
+                products={featuredProducts}
+                onSelect={setDetailProduct}
+              />
+            )}
+
+            {filtered.length === 0 ? (
+              <CatalogEmptyState
+                categories={categories}
+                hasSearch={Boolean(search.trim())}
+                hasCategoryFilter={Boolean(categoryId)}
+                onClearSearch={() => {
+                  setSearch("");
+                  setSearchOpen(false);
+                }}
+                onClearCategory={() => setCategoryId(null)}
+                onSelectCategory={(id) => {
+                  setCategoryId(id);
+                  setSearch("");
+                }}
+              />
+            ) : groupedByCategory ? (
+              groupedByCategory.map(
+                ({ category, products: catProducts }, index) => (
+                  <CatalogCategorySection
+                    key={category.id}
+                    name={category.name}
+                    slug={category.slug}
+                    productCount={catProducts.length}
+                    animationIndex={index}
+                  >
+                    {renderProductGrid(catProducts)}
+                  </CatalogCategorySection>
+                )
+              )
+            ) : (
+              <CatalogProductsShell>
+                {renderProductGrid(filtered)}
+              </CatalogProductsShell>
+            )}
+          </div>
         </main>
       </div>
+
+      <ProductDetailModal
+        product={detailProduct}
+        cartOpen={cartOpen}
+        qtyByProduct={qtyByProduct}
+        onClose={() => setDetailProduct(null)}
+        onAdd={addToCartFromDetail}
+      />
 
       <CartSidebar
         items={cart}

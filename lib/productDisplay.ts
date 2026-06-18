@@ -14,7 +14,8 @@ export function splitProductDescription(description: string | null): {
     const tail = trimmed.slice(commaIdx + 1).trim();
     if (
       /^\d+\s*(?:g|ml|kg|l)\b/i.test(tail) ||
-      /^pacote com \d+/i.test(tail)
+      /^pacote com \d+/i.test(tail) ||
+      /^frasco \d+/i.test(tail)
     ) {
       return {
         subtitle: trimmed.slice(0, commaIdx).trim(),
@@ -37,4 +38,54 @@ export function splitProductDescription(description: string | null): {
   }
 
   return { subtitle: trimmed, sizeLabel: null };
+}
+
+const FRAGRANCE_PATTERNS: { pattern: RegExp; label: string }[] = [
+  { pattern: /lavanda/i, label: "Lavanda" },
+  { pattern: /floral|jasmim|jardim/i, label: "Floral" },
+  { pattern: /c[ií]tric|lim[aã]o/i, label: "Cítrico" },
+  { pattern: /eucalipto/i, label: "Eucalipto" },
+  { pattern: /bambu/i, label: "Bambu" },
+  { pattern: /linho/i, label: "Linho" },
+  { pattern: /karit[eé]/i, label: "Karité" },
+  { pattern: /glicerina/i, label: "Neutro / Glicerina" },
+  { pattern: /infantil/i, label: "Suave / Infantil" },
+  { pattern: /esfoliante/i, label: "Esfoliante" },
+];
+
+export function parseProductDetails(
+  description: string | null,
+  name: string
+): {
+  subtitle: string | null;
+  sizeLabel: string | null;
+  fragrance: string | null;
+  ingredients: string[];
+  detailsText: string | null;
+} {
+  const { subtitle, sizeLabel } = splitProductDescription(description);
+  const combined = `${name} ${subtitle ?? ""}`;
+
+  let fragrance: string | null = null;
+  for (const { pattern, label } of FRAGRANCE_PATTERNS) {
+    if (pattern.test(combined)) {
+      fragrance = label;
+      break;
+    }
+  }
+
+  const ingredients = subtitle
+    ? subtitle
+        .split(/[,;]/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+    : [];
+
+  return {
+    subtitle,
+    sizeLabel,
+    fragrance,
+    ingredients,
+    detailsText: subtitle,
+  };
 }
