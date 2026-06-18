@@ -3,7 +3,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
+  --color-primary: #0e9f6e;
+  --color-primary-dark: #14532d;
+  --color-beige: #f7f5f0;
+  --color-cream: #fffdf8;
+  --color-text-muted: #6b7280;
+  --catalog-card-bg: #ffffff;
+  --catalog-card-border: #e8e3d9;
+  --background: var(--color-beige);
   --foreground: #18181b;
 }
 
@@ -19,7 +26,14 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(
+    180deg,
+    var(--color-cream) 0%,
+    var(--color-beige) 55%,
+    #e8f7ee 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
   color: var(--foreground);
   -webkit-tap-highlight-color: transparent;
 }
@@ -37,9 +51,171 @@ body {
   .logo-container img {
     @apply h-[100px] w-auto bg-transparent;
   }
+
   .catalog-card {
-    @apply transition-all duration-300 hover:-translate-y-[5px] hover:border-emerald-200/80 hover:shadow-[0_15px_30px_rgba(0,0,0,0.1)];
+    background: var(--catalog-card-bg);
+    border: 1px solid var(--catalog-card-border);
+    border-radius: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+
+  .catalog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .catalog-page {
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--color-beige);
+    background-image:
+      radial-gradient(
+        circle at top left,
+        rgba(14, 159, 110, 0.1),
+        transparent 320px
+      ),
+      radial-gradient(
+        circle at top right,
+        rgba(20, 83, 45, 0.06),
+        transparent 260px
+      ),
+      radial-gradient(
+        circle at bottom right,
+        rgba(14, 159, 110, 0.08),
+        transparent 300px
+      );
+  }
+
+  .catalog-page::before,
+  .catalog-page::after {
+    content: "";
+    position: fixed;
+    z-index: 0;
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    opacity: 0.22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2314532D' d='M32 6c-8 10-16 16-20 26-2 6 2 14 12 18 6 2 14 2 20-2 10-6 14-14 12-20-4-10-12-16-24-22z'/%3E%3Cpath fill='%230E9F6E' d='M32 14c-4 6-10 10-12 18 8-2 14-8 16-16-2-1-3-2-4-2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  .catalog-page::before {
+    top: 7rem;
+    left: 0.25rem;
+  }
+
+  .catalog-page::after {
+    right: 0.25rem;
+    bottom: 1.5rem;
+    transform: rotate(165deg) scaleX(-1);
+  }
+
+  .catalog-header {
+    background: rgba(255, 253, 248, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--catalog-card-border);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  .catalog-header-filters {
+    background: rgba(247, 245, 240, 0.65);
+    border-top: 1px solid var(--catalog-card-border);
+  }
+
+  .catalog-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid var(--catalog-card-border);
+    background-image: url("/lavanda.jpg");
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  }
+
+  .catalog-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 253, 248, 0.78);
+    pointer-events: none;
+  }
+
+  .catalog-category-header {
+    background: linear-gradient(135deg, #d4f0e0 0%, #e8f7ee 45%, #f5fbf7 100%);
+    border-bottom: 1px solid var(--catalog-card-border);
+  }
+
+  .catalog-category-title {
+    color: var(--color-primary-dark);
+  }
+
+  .catalog-category-meta {
+    color: var(--color-text-muted);
+  }
+
+  .catalog-btn-primary {
+    background-color: var(--color-primary);
+    color: #fff;
+    transition: background-color 0.2s ease;
+  }
+
+  .catalog-btn-primary:hover {
+    background-color: #0b8a5f;
+  }
+
+  .catalog-btn-primary:active {
+    background-color: var(--color-primary-dark);
+  }
+
+  .catalog-filter-active {
+    background-color: var(--color-primary);
+    color: #fff;
+  }
+
+  .catalog-filter-idle {
+    background-color: var(--color-cream);
+    color: var(--color-text-muted);
+    border: 1px solid var(--catalog-card-border);
+    transition: background-color 0.2s ease;
+  }
+
+  .catalog-filter-idle:hover {
+    background-color: #f0f7f3;
+  }
+
+  .catalog-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+}
+
+/* Fora do @layer para garantir aplicação em produção */
+.catalog-page {
+  background-color: #f7f5f0 !important;
+}
+
+.catalog-card {
+  border-radius: 24px !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05) !important;
+}
+
+.catalog-card:hover {
+  transform: translateY(-6px) !important;
+}
+
+.catalog-btn-primary {
+  background-color: #0e9f6e !important;
+  color: #fff !important;
+}
+
+.catalog-filter-active {
+  background-color: #0e9f6e !important;
+  color: #fff !important;
 }
 
 button,

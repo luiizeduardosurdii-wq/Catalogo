@@ -45,7 +45,7 @@ export function ProductCard({
   }
 
   return (
-    <article className="catalog-card group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <article className="catalog-card group relative flex flex-col overflow-hidden">
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-100">
         {imageKind === "photo" && product.imageUrl && (
           <Image
@@ -103,7 +103,7 @@ export function ProductCard({
         </h3>
 
         {subtitle && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-zinc-500">
+          <p className="line-clamp-2 text-xs leading-relaxed text-[#6B7280]">
             {subtitle}
           </p>
         )}
@@ -112,7 +112,7 @@ export function ProductCard({
           <p className="text-xs font-medium text-zinc-400">{sizeLabel}</p>
         )}
 
-        <p className="pt-1 text-lg font-bold tracking-tight text-emerald-700">
+        <p className="pt-1 text-lg font-bold tracking-tight text-[#0E9F6E]">
           {formatPrice(product.priceCents)}
         </p>
 
@@ -121,7 +121,7 @@ export function ProductCard({
             type="button"
             disabled={outOfStock}
             onClick={handleAdd}
-            className="mt-1 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors touch-manipulation select-none hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:shadow-none"
+            className="mt-1 w-full rounded-xl bg-[#0E9F6E] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors touch-manipulation select-none hover:bg-[#0b8a5f] active:bg-[#14532D] disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:shadow-none"
           >
             {outOfStock
               ? "Indisponível"

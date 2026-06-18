@@ -14,32 +14,28 @@ const CatalogView = dynamic(
 
 function CatalogSkeleton() {
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="border-b border-zinc-200 bg-white p-4">
-        <div className="mb-3 h-6 w-40 animate-pulse rounded bg-zinc-200" />
-        <div className="h-9 animate-pulse rounded-lg bg-zinc-200" />
-        <div className="mt-3 flex gap-2">
+    <div className="catalog-page min-h-screen">
+      <div className="catalog-header border-b p-4">
+        <div className="mx-auto mb-3 h-16 w-48 animate-pulse rounded-2xl bg-[#E8E3D9]/60" />
+        <div className="flex gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-7 w-16 animate-pulse rounded-full bg-zinc-200"
+              className="h-8 w-20 animate-pulse rounded-full bg-[#E8E3D9]/60"
             />
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2.5 p-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-xl border border-zinc-200">
-            <div className="mx-auto aspect-square max-h-40 animate-pulse rounded-2xl bg-zinc-200 sm:max-h-48" />
-            <div className="space-y-2 p-2">
-              <div className="h-3 w-full animate-pulse rounded bg-zinc-200" />
-              <div className="h-6 animate-pulse rounded bg-zinc-200" />
-            </div>
-          </div>
+      <div className="mx-2 mt-3 h-48 animate-pulse rounded-3xl bg-[#E8E3D9]/50 sm:mx-4 sm:h-64" />
+      <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-64 animate-pulse rounded-3xl bg-white/80 ring-1 ring-[#E8E3D9]"
+          />
         ))}
       </div>
-      <div className="fixed bottom-6 right-4 h-12 w-12 animate-pulse rounded-full bg-zinc-200" />
-      <p className="fixed bottom-24 left-0 right-0 text-center text-sm text-zinc-500">
+      <p className="py-8 text-center text-sm text-[#6B7280]">
         Carregando catálogo…
       </p>
     </div>

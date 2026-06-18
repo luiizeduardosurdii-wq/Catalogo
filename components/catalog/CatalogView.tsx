@@ -191,21 +191,21 @@ export function CatalogView({
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-6">
+      <div className="catalog-page flex min-h-screen items-center justify-center p-6">
         <p className="text-zinc-600">Preparando catálogo…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white shadow-sm">
+    <div className="catalog-page">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        <header className="catalog-header sticky top-0 z-20 border-b shadow-sm">
           <div className="relative px-4 pb-1 pt-3">
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="absolute right-4 top-3 z-10 flex items-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-md transition-colors touch-manipulation hover:bg-emerald-700 active:bg-emerald-800 sm:px-4"
+              className="catalog-btn-primary absolute right-4 top-3 z-10 flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold shadow-md touch-manipulation sm:px-4"
               aria-label={
                 cartItemCount > 0
                   ? `Abrir carrinho com ${cartItemCount} itens`
@@ -217,7 +217,7 @@ export function CatalogView({
               </span>
               <span className="hidden sm:inline">Carrinho</span>
               {cartItemCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold text-emerald-700">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold text-[#0E9F6E]">
                   {cartItemCount}
                 </span>
               )}
@@ -228,7 +228,7 @@ export function CatalogView({
             </div>
           </div>
 
-          <div className="border-t border-zinc-100 px-4 py-2.5">
+          <div className="catalog-header-filters border-t px-4 py-2.5">
             <div className="flex items-center gap-2">
               <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <button
@@ -236,8 +236,8 @@ export function CatalogView({
                   onClick={() => setCategoryId(null)}
                   className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
                     !categoryId
-                      ? "bg-emerald-600 text-white"
-                      : "bg-zinc-100 text-zinc-700"
+                      ? "catalog-filter-active"
+                      : "catalog-filter-idle"
                   }`}
                 >
                   Todos
@@ -249,8 +249,8 @@ export function CatalogView({
                     onClick={() => setCategoryId(c.id)}
                     className={`shrink-0 touch-manipulation rounded-full px-2.5 py-1 text-xs font-medium sm:px-3 sm:py-1.5 ${
                       categoryId === c.id
-                        ? "bg-emerald-600 text-white"
-                        : "bg-zinc-100 text-zinc-700"
+                        ? "catalog-filter-active"
+                        : "catalog-filter-idle"
                     }`}
                   >
                     {c.name}
@@ -265,8 +265,8 @@ export function CatalogView({
                 aria-expanded={searchOpen}
                 className={`shrink-0 touch-manipulation rounded-full p-2 transition-colors ${
                   searchOpen || search
-                    ? "bg-emerald-600 text-white"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    ? "catalog-filter-active"
+                    : "catalog-filter-idle"
                 }`}
               >
                 <svg
@@ -294,7 +294,7 @@ export function CatalogView({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   autoFocus
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="catalog-input w-full rounded-lg border border-[#E8E3D9] bg-[#FFFDF8] px-3 py-2 text-sm text-[#14532D] focus:outline-none"
                 />
                 {search && (
                   <button
@@ -331,7 +331,7 @@ export function CatalogView({
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-600 px-3 py-2.5 text-left text-white shadow-lg touch-manipulation"
+              className="catalog-btn-primary flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left shadow-lg touch-manipulation"
             >
               <span className="text-xs font-medium">✓ {toast}</span>
               <span className="shrink-0 rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold">
@@ -341,7 +341,10 @@ export function CatalogView({
           </div>
         )}
 
-        <main id="catalog-products" className="relative z-10 flex-1 scroll-mt-4 p-2 pt-3">
+        <main
+          id="catalog-products"
+          className="relative z-10 flex-1 scroll-mt-4 p-2 pt-3"
+        >
           {filtered.length === 0 ? (
             <p className="py-12 text-center text-sm text-zinc-500">
               Nenhum produto encontrado
@@ -351,20 +354,20 @@ export function CatalogView({
               {groupedByCategory.map(({ category, products: catProducts }) => (
                 <section
                   key={category.id}
-                  className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                  className="overflow-hidden rounded-2xl border border-[#E8E3D9] bg-white shadow-sm"
                 >
-                  <div className="flex items-center gap-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-emerald-100/60 px-4 py-3">
+                  <div className="catalog-category-header flex items-center gap-3 px-4 py-4">
                     <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl shadow-sm"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-xl shadow-sm ring-1 ring-[#E8E3D9]"
                       aria-hidden
                     >
                       {CATEGORY_ICONS[category.slug] ?? "📦"}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-base font-bold tracking-tight text-emerald-900 sm:text-lg">
+                      <h2 className="catalog-category-title text-base font-bold tracking-tight sm:text-lg">
                         {category.name}
                       </h2>
-                      <p className="text-xs font-medium text-emerald-700/80">
+                      <p className="catalog-category-meta mt-0.5 text-xs font-medium">
                         {catProducts.length}{" "}
                         {catProducts.length === 1 ? "produto" : "produtos"}
                       </p>
