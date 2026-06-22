@@ -11,7 +11,14 @@ import { getPaymentProvider } from "./payments";
 export async function createOrderWithPix(params: {
   storeId: string;
   storeSlug: string;
-  items: { productId: string; quantity: number }[];
+  items: {
+    productId: string;
+    quantity: number;
+    fragranceId?: string;
+    fragranceLabel?: string;
+    colorId?: string;
+    colorLabel?: string;
+  }[];
   customerName?: string;
   customerPhone?: string;
 }) {
@@ -19,26 +26,47 @@ export async function createOrderWithPix(params: {
     throw new Error("Pagamentos desabilitados");
   }
 
+  const productIds = [...new Set(params.items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: {
-      id: { in: params.items.map((i) => i.productId) },
+      id: { in: productIds },
       storeId: params.storeId,
       active: true,
     },
     include: { inventory: true },
   });
 
-  if (products.length !== params.items.length) {
+  if (products.length !== productIds.length) {
     throw new Error("Um ou mais produtos inválidos");
   }
 
   const orderItems = params.items.map((item) => {
     const product = products.find((p) => p.id === item.productId)!;
+    const options =
+      item.fragranceLabel || item.colorLabel
+        ? {
+            fragranceId: item.fragranceId,
+            fragranceLabel: item.fragranceLabel,
+            colorId: item.colorId,
+            colorLabel: item.colorLabel,
+          }
+        : null;
+    const optionSuffix = options
+      ? [
+          options.fragranceLabel ? `Fragrância: ${options.fragranceLabel}` : null,
+          options.colorLabel ? `Cor: ${options.colorLabel}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : "";
     return {
       productId: product.id,
-      productName: product.name,
+      productName: optionSuffix
+        ? `${product.name} (${optionSuffix})`
+        : product.name,
       quantity: item.quantity,
       unitPriceCents: product.priceCents,
+      optionsJson: options ? JSON.stringify(options) : null,
     };
   });
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
+import { formatApiError } from "@/lib/apiError";
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -28,7 +29,14 @@ export default function CheckoutPage() {
     }
 
     const { items } = JSON.parse(raw) as {
-      items: { productId: string; quantity: number }[];
+      items: {
+        productId: string;
+        quantity: number;
+        fragranceId?: string;
+        fragranceLabel?: string;
+        colorId?: string;
+        colorLabel?: string;
+      }[];
     };
 
     const res = await fetch("/api/orders", {
@@ -46,7 +54,7 @@ export default function CheckoutPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Erro ao criar pedido");
+      setError(formatApiError(data.error, "Erro ao criar pedido"));
       return;
     }
 

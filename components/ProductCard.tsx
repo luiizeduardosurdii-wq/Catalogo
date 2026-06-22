@@ -14,6 +14,7 @@ export type CatalogProduct = {
   imageUrl: string | null;
   categoryId: string;
   categoryName: string;
+  categorySlug: string;
   stockStatus: StockStatus;
   available: number;
 };
@@ -65,9 +66,9 @@ export function ProductCard({
   }
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[22px] border border-[#E8E3D9]/90 bg-white/95 shadow-[0_8px_30px_rgba(14,159,110,0.07)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/25 hover:shadow-[0_22px_50px_rgba(14,159,110,0.14)] sm:rounded-3xl">
+    <article className="group relative flex flex-col overflow-hidden rounded-[22px] border border-[#ddd5c8]/90 bg-brand-cream/95 shadow-[0_8px_30px_rgba(14,159,110,0.07)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/25 hover:shadow-[0_22px_50px_rgba(14,159,110,0.14)] sm:rounded-3xl">
       <div
-        className="pointer-events-none absolute inset-0 z-10 rounded-[22px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-3xl bg-gradient-to-br from-white/50 via-transparent to-brand/5"
+        className="pointer-events-none absolute inset-0 z-10 rounded-[22px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-3xl bg-gradient-to-br from-brand-cream/50 via-transparent to-brand/5"
         aria-hidden
       />
 

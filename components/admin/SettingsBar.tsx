@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
+import { formatApiError } from "@/lib/apiError";
 
 type SettingsBarProps = {
   initialWhatsapp?: string | null;
@@ -50,7 +51,7 @@ export function SettingsBar({ initialWhatsapp }: SettingsBarProps) {
     setSaving(false);
 
     if (!res.ok) {
-      setWhatsappError(data.error ?? "Erro ao salvar");
+      setWhatsappError(formatApiError(data.error, "Erro ao salvar"));
       return;
     }
 

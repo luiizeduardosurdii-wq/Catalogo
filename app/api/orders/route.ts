@@ -10,6 +10,10 @@ const schema = z.object({
     z.object({
       productId: z.string(),
       quantity: z.number().int().positive(),
+      fragranceId: z.string().optional(),
+      fragranceLabel: z.string().optional(),
+      colorId: z.string().optional(),
+      colorLabel: z.string().optional(),
     })
   ).min(1),
   customerName: z.string().optional(),

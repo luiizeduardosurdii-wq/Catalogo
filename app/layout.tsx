@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { DevSwCleanup } from "@/components/DevSwCleanup";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -13,6 +15,9 @@ export const metadata: Metadata = {
   title: "SaboArt",
   description: "Catálogo online SaboArt — sabonetes, sachês e sprays",
   manifest: "/manifest.json",
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -26,23 +31,22 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const serverTheme = parseTheme(cookieStore.get(THEME_COOKIE)?.value);
+
   return (
-    <html lang="pt-BR" className={`${geist.variable} h-full`} suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
-          }}
-        />
-      </head>
+    <html
+      lang="pt-BR"
+      className={`${geist.variable} h-full${serverTheme === "dark" ? " dark" : ""}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full font-sans antialiased" suppressHydrationWarning>
-        <ThemeProvider>
+        <ThemeProvider initialTheme={serverTheme ?? undefined}>
           <DevSwCleanup />
           {children}
         </ThemeProvider>

@@ -218,6 +218,7 @@ async function main() {
     where: { order: { storeId: store.id } },
   });
   await prisma.order.deleteMany({ where: { storeId: store.id } });
+  await prisma.customizationOption.deleteMany({ where: { storeId: store.id } });
   await prisma.product.deleteMany({ where: { storeId: store.id } });
 
   for (const p of products) {
@@ -250,6 +251,30 @@ async function main() {
         quantity: p.qty,
         balanceAfter: p.qty,
         note: "Estoque inicial (seed)",
+      },
+    });
+  }
+
+  const customizationOptions = [
+    { type: "FRAGRANCE" as const, label: "Lavanda", sortOrder: 1 },
+    { type: "FRAGRANCE" as const, label: "Floral", sortOrder: 2 },
+    { type: "FRAGRANCE" as const, label: "Cítrico", sortOrder: 3 },
+    { type: "FRAGRANCE" as const, label: "Neutro", sortOrder: 4 },
+    { type: "COLOR" as const, label: "Branco", hexColor: "#FFFFFF", sortOrder: 1 },
+    { type: "COLOR" as const, label: "Rosa claro", hexColor: "#F9A8D4", sortOrder: 2 },
+    { type: "COLOR" as const, label: "Verde", hexColor: "#0E9F6E", sortOrder: 3 },
+    { type: "COLOR" as const, label: "Lavanda", hexColor: "#C4B5FD", sortOrder: 4 },
+  ];
+
+  for (const option of customizationOptions) {
+    await prisma.customizationOption.create({
+      data: {
+        storeId: store.id,
+        type: option.type,
+        label: option.label,
+        hexColor: "hexColor" in option ? option.hexColor : null,
+        sortOrder: option.sortOrder,
+        active: true,
       },
     });
   }

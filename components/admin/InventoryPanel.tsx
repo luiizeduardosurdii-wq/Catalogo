@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatApiError } from "@/lib/apiError";
 
 export function InventoryPanel({
   productId,
@@ -31,7 +32,7 @@ export function InventoryPanel({
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setMessage(data.error ?? "Erro");
+      setMessage(formatApiError(data.error, "Erro"));
       return;
     }
     setMessage(`Saldo atual: ${data.balance}`);

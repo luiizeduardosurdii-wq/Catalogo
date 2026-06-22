@@ -4,10 +4,13 @@ import { prisma } from "@/lib/db";
 import { z } from "zod";
 
 const createSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, "Informe o nome do produto"),
   description: z.string().optional(),
-  priceCents: z.number().int().positive(),
-  categoryId: z.string(),
+  priceCents: z
+    .number({ error: "Informe um preço válido" })
+    .int()
+    .positive("O preço deve ser maior que zero"),
+  categoryId: z.string().min(1, "Selecione uma categoria"),
   imageUrl: z.string().optional(),
   initialQuantity: z.number().int().min(0).optional(),
 });

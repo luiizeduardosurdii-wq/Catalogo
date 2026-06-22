@@ -3,7 +3,21 @@ import { BrandLogo } from "@/components/BrandLogo";
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50 to-white p-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6">
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-cream via-brand-beige to-brand-sage"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-brand/10 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-16 bottom-16 h-56 w-56 rounded-full bg-[#d4a574]/20 blur-3xl"
+        aria-hidden
+      />
+
+      <div className="relative z-10 flex w-full max-w-md flex-col items-center">
       <div className="logo-container w-full">
         <BrandLogo size="hero" centered />
       </div>
@@ -31,6 +45,7 @@ export default function HomePage() {
         >
           Painel admin
         </Link>
+      </div>
       </div>
     </div>
   );

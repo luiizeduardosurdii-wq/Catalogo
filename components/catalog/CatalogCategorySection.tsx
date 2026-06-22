@@ -75,8 +75,13 @@ export function CatalogCategorySection({
 
   return (
     <section
-      className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-cream via-white to-brand-beige opacity-0 shadow-[0_4px_6px_rgba(20,83,45,0.04),0_20px_48px_rgba(14,159,110,0.08)] animate-fade-in-up motion-reduce:animate-none motion-reduce:opacity-100"
-      style={{ animationDelay: `${200 + animationIndex * 120}ms` }}
+      className={`catalog-section relative overflow-hidden rounded-3xl border border-[#ddd5c8]/70 opacity-0 shadow-[0_4px_6px_rgba(20,83,45,0.05),0_20px_48px_rgba(14,159,110,0.1)] animate-fade-in-up motion-reduce:animate-none motion-reduce:opacity-100 ${
+        animationIndex % 2 === 0 ? "catalog-section--warm" : "catalog-section--sage"
+      }`}
+      style={{
+        animationDelay: `${200 + animationIndex * 120}ms`,
+        background: "var(--section-surface)",
+      }}
     >
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-brand/10 blur-3xl"
@@ -87,16 +92,19 @@ export function CatalogCategorySection({
         aria-hidden
       />
 
-      <div className="relative overflow-hidden border-b border-brand/10 bg-gradient-to-r from-brand-light via-[#F0FDF4] to-brand-cream">
+      <div
+        className="relative overflow-hidden border-b border-brand/10"
+        style={{ background: "var(--section-header)" }}
+      >
         <LeafIcon className="pointer-events-none absolute -right-1 top-0 h-16 w-16 rotate-[15deg] opacity-[0.11]" />
         <LeafIcon className="pointer-events-none absolute -bottom-3 left-2 h-12 w-12 -scale-x-100 rotate-[-25deg] opacity-[0.07]" />
         <LavenderIcon className="pointer-events-none absolute right-16 top-2 h-10 w-10 opacity-60" />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-brand/5" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-cream/25 via-transparent to-brand/5" />
 
-        <div className="relative z-10 flex items-center gap-3 px-4 py-4 backdrop-blur-md bg-brand-cream/55 sm:px-5 sm:py-4">
+        <div className="relative z-10 flex items-center gap-3 px-4 py-4 backdrop-blur-md bg-brand-cream/45 sm:px-5 sm:py-4">
           <span
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-white/85 text-xl shadow-[0_4px_16px_rgba(14,159,110,0.1)] backdrop-blur-sm"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-brand-cream/90 text-xl shadow-[0_4px_16px_rgba(14,159,110,0.1)] backdrop-blur-sm"
             aria-hidden
           >
             {CATEGORY_ICONS[slug] ?? "📦"}
@@ -108,13 +116,16 @@ export function CatalogCategorySection({
             </h2>
           </div>
 
-          <span className="shrink-0 rounded-full border border-brand/15 bg-white/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-dark shadow-sm backdrop-blur-sm sm:text-xs">
+          <span className="shrink-0 rounded-full border border-brand/15 bg-brand-cream/85 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-dark shadow-sm backdrop-blur-sm sm:text-xs">
             {countLabel}
           </span>
         </div>
       </div>
 
-      <div className="relative bg-gradient-to-b from-brand-light/50 via-brand-cream/30 to-white p-3 sm:p-5">
+      <div
+        className="relative p-3 sm:p-5"
+        style={{ background: "var(--section-body)" }}
+      >
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"
           aria-hidden
@@ -127,7 +138,7 @@ export function CatalogCategorySection({
 
 export function CatalogProductsShell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-br from-brand-cream via-white to-brand-beige p-3 shadow-[0_4px_6px_rgba(20,83,45,0.04),0_20px_48px_rgba(14,159,110,0.08)] sm:p-5">
+    <div className="catalog-section catalog-section--warm relative overflow-hidden rounded-3xl border border-[#ddd5c8]/70 p-3 shadow-[0_4px_6px_rgba(20,83,45,0.05),0_20px_48px_rgba(14,159,110,0.1)] sm:p-5" style={{ background: "var(--section-surface)" }}>
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand/8 blur-3xl"
         aria-hidden

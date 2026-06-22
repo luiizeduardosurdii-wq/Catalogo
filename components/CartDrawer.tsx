@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import type { CatalogProduct } from "./ProductCard";
+import type { CartCustomization } from "@/lib/customization";
 
 export type CartItem = {
+  lineKey: string;
   product: CatalogProduct;
   quantity: number;
   notes?: string;
-};
+} & CartCustomization;
 
 export function CartDrawer({
   items,
@@ -22,7 +24,7 @@ export function CartDrawer({
   items: CartItem[];
   open: boolean;
   onClose: () => void;
-  onUpdateQty: (productId: string, qty: number) => void;
+  onUpdateQty: (lineKey: string, qty: number) => void;
   onCheckout?: () => void;
   onWhatsApp: () => void;
   paymentsEnabled: boolean;
@@ -72,7 +74,7 @@ export function CartDrawer({
           <ul className="space-y-3">
             {items.map((item) => (
               <li
-                key={item.product.id}
+                key={item.lineKey}
                 className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-3"
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -104,7 +106,7 @@ export function CartDrawer({
                     type="button"
                     className="flex h-10 w-10 items-center justify-center rounded-lg border bg-zinc-50 text-lg touch-manipulation"
                     onClick={() =>
-                      onUpdateQty(item.product.id, item.quantity - 1)
+                      onUpdateQty(item.lineKey, item.quantity - 1)
                     }
                     aria-label="Remover um"
                   >
@@ -117,7 +119,7 @@ export function CartDrawer({
                     type="button"
                     className="flex h-10 w-10 items-center justify-center rounded-lg border bg-zinc-50 text-lg touch-manipulation disabled:opacity-40"
                     onClick={() =>
-                      onUpdateQty(item.product.id, item.quantity + 1)
+                      onUpdateQty(item.lineKey, item.quantity + 1)
                     }
                     disabled={item.quantity >= item.product.available}
                     aria-label="Adicionar um"

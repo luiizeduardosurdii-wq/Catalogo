@@ -20,7 +20,7 @@ export function CatalogEmptyState({
   onSelectCategory,
 }: CatalogEmptyStateProps) {
   return (
-    <div className="mx-auto max-w-md rounded-3xl border border-white/70 bg-gradient-to-br from-brand-cream via-white to-brand-light/50 px-6 py-10 text-center shadow-[0_8px_30px_rgba(14,159,110,0.08)]">
+    <div className="mx-auto max-w-md rounded-3xl border border-[#ddd5c8]/70 bg-gradient-to-br from-brand-cream via-brand-warm/70 to-brand-sage/60 px-6 py-10 text-center shadow-[0_8px_30px_rgba(14,159,110,0.08)]">
       <span className="text-4xl" aria-hidden>
         🔍
       </span>
@@ -38,7 +38,7 @@ export function CatalogEmptyState({
           <button
             type="button"
             onClick={onClearSearch}
-            className="rounded-full border border-brand/20 bg-white px-4 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-light/50 touch-manipulation"
+            className="rounded-full border border-brand/20 bg-brand-cream px-4 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-light/50 touch-manipulation"
           >
             Limpar busca
           </button>
@@ -65,7 +65,7 @@ export function CatalogEmptyState({
                 key={cat.id}
                 type="button"
                 onClick={() => onSelectCategory(cat.id)}
-                className="rounded-full border border-brand/15 bg-white/90 px-3 py-1.5 text-xs font-medium text-brand-dark transition-colors hover:border-brand/30 hover:bg-brand-light/40 touch-manipulation"
+                className="rounded-full border border-brand/15 bg-brand-cream/90 px-3 py-1.5 text-xs font-medium text-brand-dark transition-colors hover:border-brand/30 hover:bg-brand-light/40 touch-manipulation"
               >
                 {cat.name}
               </button>

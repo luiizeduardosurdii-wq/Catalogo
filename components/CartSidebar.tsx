@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/format";
 import { splitProductDescription } from "@/lib/productDisplay";
+import {
+  formatCartCustomizationSummary,
+  isSoapProduct,
+  type CustomizationOption,
+} from "@/lib/customization";
 import type { CartItem } from "./CartDrawer";
 
 function CartProductThumb({
@@ -68,19 +73,75 @@ function TrashIcon() {
   );
 }
 
+function CustomizationSelect({
+  label,
+  value,
+  placeholder,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  placeholder: string;
+  options: CustomizationOption[];
+  onChange: (id: string, optionLabel: string) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-[11px] font-medium text-[#6B7280]">
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => {
+          const selected = options.find((o) => o.id === e.target.value);
+          if (selected) onChange(selected.id, selected.label);
+        }}
+        className="w-full rounded-xl border border-brand/15 bg-brand-cream px-2.5 py-1.5 text-xs text-brand-dark focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.type === "COLOR" && option.hexColor
+              ? `● ${option.label}`
+              : option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function CartLineItem({
   item,
+  fragrances,
+  colors,
   onUpdateQty,
   onUpdateNotes,
+  onUpdateCustomization,
   onRemove,
 }: {
   item: CartItem;
-  onUpdateQty: (productId: string, qty: number) => void;
-  onUpdateNotes: (productId: string, notes: string) => void;
-  onRemove: (productId: string) => void;
+  fragrances: CustomizationOption[];
+  colors: CustomizationOption[];
+  onUpdateQty: (lineKey: string, qty: number) => void;
+  onUpdateNotes: (lineKey: string, notes: string) => void;
+  onUpdateCustomization: (
+    lineKey: string,
+    patch: {
+      fragranceId?: string;
+      fragranceLabel?: string;
+      colorId?: string;
+      colorLabel?: string;
+    }
+  ) => void;
+  onRemove: (lineKey: string) => void;
 }) {
   const { sizeLabel } = splitProductDescription(item.product.description);
   const lineTotal = item.product.priceCents * item.quantity;
+  const isSoap = isSoapProduct(item.product.categorySlug);
+  const customizationSummary = formatCartCustomizationSummary(item);
+  const selectedColor = colors.find((c) => c.id === item.colorId);
 
   return (
     <li className="rounded-2xl border border-brand/10 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
@@ -96,6 +157,11 @@ function CartLineItem({
           {sizeLabel && (
             <p className="mt-0.5 text-xs text-[#6B7280]">{sizeLabel}</p>
           )}
+          {customizationSummary && (
+            <p className="mt-1 text-xs font-medium text-brand">
+              {customizationSummary}
+            </p>
+          )}
           <p className="mt-1 text-sm text-[#6B7280]">
             {formatPrice(item.product.priceCents)}
             {item.quantity > 1 && (
@@ -110,19 +176,67 @@ function CartLineItem({
         </div>
       </div>
 
+      {isSoap && (fragrances.length > 0 || colors.length > 0) && (
+        <div className="mt-3 space-y-2 rounded-xl border border-brand/10 bg-brand-cream/40 p-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-brand/80">
+            Personalização
+          </p>
+          {fragrances.length > 0 && (
+            <CustomizationSelect
+              label="Fragrância"
+              value={item.fragranceId ?? ""}
+              placeholder="Selecione a fragrância"
+              options={fragrances}
+              onChange={(id, label) =>
+                onUpdateCustomization(item.lineKey, {
+                  fragranceId: id,
+                  fragranceLabel: label,
+                })
+              }
+            />
+          )}
+          {colors.length > 0 && (
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <CustomizationSelect
+                  label="Cor"
+                  value={item.colorId ?? ""}
+                  placeholder="Selecione a cor"
+                  options={colors}
+                  onChange={(id, label) =>
+                    onUpdateCustomization(item.lineKey, {
+                      colorId: id,
+                      colorLabel: label,
+                    })
+                  }
+                />
+              </div>
+              {selectedColor?.hexColor && (
+                <span
+                  className="mb-0.5 h-8 w-8 shrink-0 rounded-full ring-1 ring-brand/20"
+                  style={{ backgroundColor: selectedColor.hexColor }}
+                  title={selectedColor.label}
+                  aria-hidden
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="mt-3">
         <label
-          htmlFor={`cart-notes-${item.product.id}`}
+          htmlFor={`cart-notes-${item.lineKey}`}
           className="mb-1 block text-[11px] font-medium text-[#6B7280]"
         >
           Observações
         </label>
         <input
-          id={`cart-notes-${item.product.id}`}
+          id={`cart-notes-${item.lineKey}`}
           type="text"
           value={item.notes ?? ""}
-          onChange={(e) => onUpdateNotes(item.product.id, e.target.value)}
-          placeholder="Ex.: Sem fragrância"
+          onChange={(e) => onUpdateNotes(item.lineKey, e.target.value)}
+          placeholder="Ex.: embalagem para presente"
           className="w-full rounded-xl border border-brand/15 bg-brand-cream px-2.5 py-1.5 text-xs text-brand-dark placeholder:text-[#6B7280]/60 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </div>
@@ -132,7 +246,7 @@ function CartLineItem({
           <button
             type="button"
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-brand-dark to-brand text-lg font-bold text-white shadow-sm transition-all hover:shadow-md active:scale-95 touch-manipulation"
-            onClick={() => onUpdateQty(item.product.id, item.quantity - 1)}
+            onClick={() => onUpdateQty(item.lineKey, item.quantity - 1)}
             aria-label="Diminuir quantidade"
           >
             −
@@ -143,7 +257,7 @@ function CartLineItem({
           <button
             type="button"
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-brand-dark to-brand text-lg font-bold text-white shadow-sm transition-all hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 touch-manipulation"
-            onClick={() => onUpdateQty(item.product.id, item.quantity + 1)}
+            onClick={() => onUpdateQty(item.lineKey, item.quantity + 1)}
             disabled={item.quantity >= item.product.available}
             aria-label="Aumentar quantidade"
           >
@@ -153,7 +267,7 @@ function CartLineItem({
 
         <button
           type="button"
-          onClick={() => onRemove(item.product.id)}
+          onClick={() => onRemove(item.lineKey)}
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-red-200/80 bg-red-50/80 text-red-600 transition-colors touch-manipulation hover:bg-red-100 active:bg-red-200"
           aria-label={`Remover ${item.product.name} do carrinho`}
         >
@@ -166,8 +280,12 @@ function CartLineItem({
 
 function CartPanel({
   items,
+  fragrances,
+  colors,
+  cartError,
   onUpdateQty,
   onUpdateNotes,
+  onUpdateCustomization,
   onRemove,
   onCheckout,
   onWhatsApp,
@@ -176,9 +294,21 @@ function CartPanel({
   onBrowseProducts,
 }: {
   items: CartItem[];
-  onUpdateQty: (productId: string, qty: number) => void;
-  onUpdateNotes: (productId: string, notes: string) => void;
-  onRemove: (productId: string) => void;
+  fragrances: CustomizationOption[];
+  colors: CustomizationOption[];
+  cartError: string;
+  onUpdateQty: (lineKey: string, qty: number) => void;
+  onUpdateNotes: (lineKey: string, notes: string) => void;
+  onUpdateCustomization: (
+    lineKey: string,
+    patch: {
+      fragranceId?: string;
+      fragranceLabel?: string;
+      colorId?: string;
+      colorLabel?: string;
+    }
+  ) => void;
+  onRemove: (lineKey: string) => void;
   onCheckout?: () => void;
   onWhatsApp: () => void;
   paymentsEnabled: boolean;
@@ -234,10 +364,13 @@ function CartPanel({
           <ul className="space-y-3">
             {items.map((item) => (
               <CartLineItem
-                key={item.product.id}
+                key={item.lineKey}
                 item={item}
+                fragrances={fragrances}
+                colors={colors}
                 onUpdateQty={onUpdateQty}
                 onUpdateNotes={onUpdateNotes}
+                onUpdateCustomization={onUpdateCustomization}
                 onRemove={onRemove}
               />
             ))}
@@ -250,6 +383,12 @@ function CartPanel({
           className="shrink-0 space-y-3 border-t border-brand/10 bg-brand-cream/90 p-4 backdrop-blur-md"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
+          {cartError && (
+            <p className="rounded-xl bg-red-50 px-3 py-2 text-xs text-red-600 ring-1 ring-red-100">
+              {cartError}
+            </p>
+          )}
+
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between text-[#6B7280]">
               <span>Subtotal</span>
@@ -288,8 +427,12 @@ function CartPanel({
 
 export function CartSidebar({
   items,
+  fragrances,
+  colors,
+  cartError,
   onUpdateQty,
   onUpdateNotes,
+  onUpdateCustomization,
   onRemove,
   onCheckout,
   onWhatsApp,
@@ -298,9 +441,21 @@ export function CartSidebar({
   onOpenChange,
 }: {
   items: CartItem[];
-  onUpdateQty: (productId: string, qty: number) => void;
-  onUpdateNotes: (productId: string, notes: string) => void;
-  onRemove: (productId: string) => void;
+  fragrances: CustomizationOption[];
+  colors: CustomizationOption[];
+  cartError: string;
+  onUpdateQty: (lineKey: string, qty: number) => void;
+  onUpdateNotes: (lineKey: string, notes: string) => void;
+  onUpdateCustomization: (
+    lineKey: string,
+    patch: {
+      fragranceId?: string;
+      fragranceLabel?: string;
+      colorId?: string;
+      colorLabel?: string;
+    }
+  ) => void;
+  onRemove: (lineKey: string) => void;
   onCheckout?: () => void;
   onWhatsApp: () => void;
   paymentsEnabled: boolean;
@@ -365,8 +520,12 @@ export function CartSidebar({
         >
           <CartPanel
             items={items}
+            fragrances={fragrances}
+            colors={colors}
+            cartError={cartError}
             onUpdateQty={onUpdateQty}
             onUpdateNotes={onUpdateNotes}
+            onUpdateCustomization={onUpdateCustomization}
             onRemove={onRemove}
             onCheckout={onCheckout}
             onWhatsApp={onWhatsApp}

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
 import { cancelExpiredOrders } from "@/lib/orders";
+import { parseOrderOptions } from "@/lib/customization";
 
 const statusLabels: Record<string, string> = {
   DRAFT: "Rascunho",
@@ -44,11 +45,25 @@ export default async function OrdersPage() {
                 {formatPrice(o.totalCents)}
               </p>
               <ul className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                {o.items.map((i) => (
-                  <li key={i.id}>
-                    {i.quantity}x {i.productName}
-                  </li>
-                ))}
+                {o.items.map((i) => {
+                  const options = parseOrderOptions(i.optionsJson);
+                  return (
+                    <li key={i.id}>
+                      {i.quantity}x {i.productName}
+                      {options && (
+                        <span className="block text-xs text-zinc-400">
+                          {[
+                            options.fragranceLabel &&
+                              `Fragrância: ${options.fragranceLabel}`,
+                            options.colorLabel && `Cor: ${options.colorLabel}`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               {o.payment && (
                 <p className="mt-2 text-xs text-zinc-400">

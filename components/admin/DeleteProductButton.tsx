@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { formatApiError } from "@/lib/apiError";
 type DeleteProductButtonProps = {
   productId: string;
   productName: string;
@@ -23,11 +23,6 @@ export function DeleteProductButton({
   const [error, setError] = useState("");
 
   async function handleDelete() {
-    const ok = window.confirm(
-      `Excluir "${productName}"?\n\nProdutos que já aparecem em pedidos serão apenas desativados.`
-    );
-    if (!ok) return;
-
     setLoading(true);
     setError("");
 
@@ -38,14 +33,8 @@ export function DeleteProductButton({
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Erro ao excluir");
+      setError(formatApiError(data.error, "Erro ao excluir"));
       return;
-    }
-
-    if (data.deactivated) {
-      alert(
-        "Este produto consta em pedidos e foi desativado (não aparece mais no catálogo)."
-      );
     }
 
     router.push(redirectTo);
@@ -58,6 +47,7 @@ export function DeleteProductButton({
         type="button"
         disabled={loading}
         onClick={handleDelete}
+        aria-label={`Excluir ${productName}`}
         className={
           compact
             ? "rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50"

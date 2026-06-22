@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import { getStockStatus } from "./format";
+import type { CustomizationOption } from "./customization";
 
 export async function getStoreBySlug(slug: string) {
   return prisma.store.findFirst({
@@ -7,8 +8,24 @@ export async function getStoreBySlug(slug: string) {
   });
 }
 
+export async function getStoreCustomizationOptions(
+  storeId: string
+): Promise<CustomizationOption[]> {
+  const options = await prisma.customizationOption.findMany({
+    where: { storeId, active: true },
+    orderBy: [{ type: "asc" }, { sortOrder: "asc" }, { label: "asc" }],
+  });
+
+  return options.map((o) => ({
+    id: o.id,
+    type: o.type,
+    label: o.label,
+    hexColor: o.hexColor,
+  }));
+}
+
 export async function getStoreCatalog(storeId: string) {
-  const [categories, products] = await Promise.all([
+  const [categories, products, customizationOptions] = await Promise.all([
     prisma.category.findMany({
       where: { storeId, active: true },
       orderBy: { sortOrder: "asc" },
@@ -18,6 +35,7 @@ export async function getStoreCatalog(storeId: string) {
       include: { inventory: true, category: true },
       orderBy: { name: "asc" },
     }),
+    getStoreCustomizationOptions(storeId),
   ]);
 
   const productsWithStock = products.map((p) => {
@@ -34,10 +52,11 @@ export async function getStoreCatalog(storeId: string) {
       imageUrl: p.imageUrl,
       categoryId: p.categoryId,
       categoryName: p.category.name,
+      categorySlug: p.category.slug,
       stockStatus,
       available,
     };
   });
 
-  return { categories, products: productsWithStock };
+  return { categories, products: productsWithStock, customizationOptions };
 }

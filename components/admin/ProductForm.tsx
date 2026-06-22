@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { formatApiError } from "@/lib/apiError";
 import { ProductImageUpload } from "@/components/admin/ProductImageUpload";
 import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
 
@@ -76,7 +77,7 @@ export function ProductForm({
       if (!up.ok) {
         const data = await up.json().catch(() => ({}));
         setLoading(false);
-        setError(data.error ?? "Erro ao enviar a foto");
+        setError(formatApiError(data.error, "Erro ao enviar a foto"));
         return;
       }
       const { url } = await up.json();
@@ -109,7 +110,7 @@ export function ProductForm({
     setLoading(false);
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Erro ao salvar");
+      setError(formatApiError(data.error, "Erro ao salvar"));
       return;
     }
 

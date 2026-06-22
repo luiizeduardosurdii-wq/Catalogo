@@ -37,7 +37,7 @@ export default async function StoreCatalogPage({ params }: Props) {
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
 
-  const { categories, products } = await getStoreCatalog(store.id);
+  const { categories, products, customizationOptions } = await getStoreCatalog(store.id);
 
   return (
     <CatalogLoader
@@ -46,6 +46,7 @@ export default async function StoreCatalogPage({ params }: Props) {
       whatsapp={store.whatsapp}
       categories={categories}
       products={products}
+      customizationOptions={customizationOptions}
       paymentsEnabled={config.paymentsEnabled}
     />
   );

@@ -17,11 +17,12 @@ model Store {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users               User[]
-  categories          Category[]
-  products            Product[]
-  orders              Order[]
-  inventoryMovements  InventoryMovement[]
+  users                 User[]
+  categories            Category[]
+  products              Product[]
+  orders                Order[]
+  inventoryMovements    InventoryMovement[]
+  customizationOptions  CustomizationOption[]
 
   @@map("stores")
 }
@@ -152,17 +153,39 @@ model Order {
 }
 
 model OrderItem {
-  id           String  @id @default(cuid())
-  orderId      String
-  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId    String
-  product      Product @relation(fields: [productId], references: [id], onDelete: Restrict)
-  productName  String
-  quantity     Int
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName    String
+  quantity       Int
   unitPriceCents Int
+  optionsJson    String?
 
   @@index([orderId])
   @@map("order_items")
+}
+
+enum CustomizationOptionType {
+  FRAGRANCE
+  COLOR
+}
+
+model CustomizationOption {
+  id        String                  @id @default(cuid())
+  storeId   String
+  store     Store                   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  type      CustomizationOptionType
+  label     String
+  hexColor  String?
+  sortOrder Int                     @default(0)
+  active    Boolean                 @default(true)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+
+  @@index([storeId, type])
+  @@map("customization_options")
 }
 
 enum PaymentStatus {

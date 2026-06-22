@@ -13,6 +13,12 @@ import { CatalogEmptyState } from "@/components/catalog/CatalogEmptyState";
 import { formatPrice } from "@/lib/format";
 import { loadCart, saveCart } from "@/lib/cartStorage";
 import type { CartItem } from "@/components/CartDrawer";
+import {
+  buildCartLineKey,
+  formatCartCustomizationSummary,
+  isSoapProduct,
+  type CustomizationOption,
+} from "@/lib/customization";
 
 import {
   CatalogCategorySection,
@@ -48,12 +54,41 @@ function pickFeaturedProducts(
   return picked.slice(0, 4);
 }
 
+function createCartItem(product: CatalogProduct, quantity = 1): CartItem {
+  return {
+    lineKey: buildCartLineKey(product.id),
+    product,
+    quantity,
+  };
+}
+
+function mergeCartItems(items: CartItem[]): CartItem[] {
+  const map = new Map<string, CartItem>();
+  for (const item of items) {
+    const existing = map.get(item.lineKey);
+    if (!existing) {
+      map.set(item.lineKey, item);
+      continue;
+    }
+    map.set(item.lineKey, {
+      ...existing,
+      quantity: Math.min(
+        existing.quantity + item.quantity,
+        item.product.available
+      ),
+      notes: existing.notes || item.notes,
+    });
+  }
+  return Array.from(map.values());
+}
+
 export function CatalogView({
   storeName,
   storeSlug,
   whatsapp,
   categories,
   products,
+  customizationOptions,
   paymentsEnabled,
 }: {
   storeName: string;
@@ -61,6 +96,7 @@ export function CatalogView({
   whatsapp: string | null;
   categories: Category[];
   products: CatalogProduct[];
+  customizationOptions: CustomizationOption[];
   paymentsEnabled: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -72,6 +108,16 @@ export function CatalogView({
     null
   );
   const [ready, setReady] = useState(false);
+  const [cartError, setCartError] = useState("");
+
+  const fragrances = useMemo(
+    () => customizationOptions.filter((o) => o.type === "FRAGRANCE"),
+    [customizationOptions]
+  );
+  const colors = useMemo(
+    () => customizationOptions.filter((o) => o.type === "COLOR"),
+    [customizationOptions]
+  );
 
   useEffect(() => {
     setCart(loadCart(storeSlug, products));
@@ -123,7 +169,7 @@ export function CatalogView({
   const qtyByProduct = useMemo(() => {
     const map: Record<string, number> = {};
     for (const item of cart) {
-      map[item.product.id] = item.quantity;
+      map[item.product.id] = (map[item.product.id] ?? 0) + item.quantity;
     }
     return map;
   }, [cart]);
@@ -131,17 +177,17 @@ export function CatalogView({
   const cartItemCount = cart.reduce((s, i) => s + i.quantity, 0);
 
   function addToCart(product: CatalogProduct) {
+    setCartError("");
     setCart((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const lineKey = buildCartLineKey(product.id);
+      const existing = prev.find((i) => i.lineKey === lineKey);
       if (existing) {
         if (existing.quantity >= product.available) return prev;
         return prev.map((i) =>
-          i.product.id === product.id
-            ? { ...i, quantity: i.quantity + 1 }
-            : i
+          i.lineKey === lineKey ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, createCartItem(product)];
     });
   }
 
@@ -150,50 +196,142 @@ export function CatalogView({
     setCartOpen(true);
   }
 
-  function updateQty(productId: string, qty: number) {
+  function updateQty(lineKey: string, qty: number) {
+    setCartError("");
     if (qty <= 0) {
-      setCart((prev) => prev.filter((i) => i.product.id !== productId));
+      setCart((prev) => prev.filter((i) => i.lineKey !== lineKey));
       return;
     }
     setCart((prev) =>
       prev.map((i) =>
-        i.product.id === productId ? { ...i, quantity: qty } : i
+        i.lineKey === lineKey ? { ...i, quantity: qty } : i
       )
     );
   }
 
-  function updateNotes(productId: string, notes: string) {
+  function updateNotes(lineKey: string, notes: string) {
     setCart((prev) =>
       prev.map((i) =>
-        i.product.id === productId ? { ...i, notes: notes || undefined } : i
+        i.lineKey === lineKey ? { ...i, notes: notes || undefined } : i
       )
     );
   }
 
-  function removeFromCart(productId: string) {
-    setCart((prev) => prev.filter((i) => i.product.id !== productId));
+  function updateCustomization(
+    lineKey: string,
+    patch: {
+      fragranceId?: string;
+      fragranceLabel?: string;
+      colorId?: string;
+      colorLabel?: string;
+    }
+  ) {
+    setCartError("");
+    setCart((prev) => {
+      const item = prev.find((i) => i.lineKey === lineKey);
+      if (!item) return prev;
+
+      const next = {
+        fragranceId:
+          patch.fragranceId !== undefined ? patch.fragranceId : item.fragranceId,
+        fragranceLabel:
+          patch.fragranceLabel !== undefined
+            ? patch.fragranceLabel
+            : item.fragranceLabel,
+        colorId: patch.colorId !== undefined ? patch.colorId : item.colorId,
+        colorLabel:
+          patch.colorLabel !== undefined ? patch.colorLabel : item.colorLabel,
+      };
+      const newLineKey = buildCartLineKey(item.product.id, next);
+
+      if (newLineKey === lineKey) {
+        return prev.map((i) =>
+          i.lineKey === lineKey ? { ...i, ...next } : i
+        );
+      }
+
+      const withoutCurrent = prev.filter((i) => i.lineKey !== lineKey);
+      const existing = withoutCurrent.find((i) => i.lineKey === newLineKey);
+
+      if (existing) {
+        return mergeCartItems([
+          ...withoutCurrent.filter((i) => i.lineKey !== newLineKey),
+          {
+            ...existing,
+            quantity: Math.min(
+              existing.quantity + item.quantity,
+              item.product.available
+            ),
+            notes: existing.notes || item.notes,
+          },
+        ]);
+      }
+
+      return [...withoutCurrent, { ...item, ...next, lineKey: newLineKey }];
+    });
+  }
+
+  function removeFromCart(lineKey: string) {
+    setCartError("");
+    setCart((prev) => prev.filter((i) => i.lineKey !== lineKey));
+  }
+
+  function validateCartForCheckout() {
+    for (const item of cart) {
+      if (!isSoapProduct(item.product.categorySlug)) continue;
+      if (fragrances.length > 0 && !item.fragranceId) {
+        return "Selecione a fragrância de todos os sabonetes no carrinho.";
+      }
+      if (colors.length > 0 && !item.colorId) {
+        return "Selecione a cor de todos os sabonetes no carrinho.";
+      }
+    }
+    return "";
+  }
+
+  function formatCartLine(item: CartItem) {
+    const customization = formatCartCustomizationSummary(item);
+    const base = `• ${item.quantity}x ${item.product.name}`;
+    const details = customization ? `\n  _${customization}_` : "";
+    const notes = item.notes?.trim()
+      ? `\n  _Obs.: ${item.notes.trim()}_`
+      : "";
+    return `${base} - ${formatPrice(item.product.priceCents * item.quantity)}${details}${notes}`;
   }
 
   function buildWhatsAppMessage() {
-    const lines = cart.map((i) => {
-      const line = `• ${i.quantity}x ${i.product.name} - ${formatPrice(i.product.priceCents * i.quantity)}`;
-      return i.notes?.trim() ? `${line}\n  _Obs.: ${i.notes.trim()}_` : line;
-    });
+    const lines = cart.map(formatCartLine);
     return encodeURIComponent(
       `Olá! Gostaria de pedir:\n\n${lines.join("\n")}\n\n*Total: ${formatPrice(cartTotal)}*`
     );
   }
 
   function openWhatsApp() {
+    const error = validateCartForCheckout();
+    if (error) {
+      setCartError(error);
+      return;
+    }
+    setCartError("");
     const phone = whatsapp?.replace(/\D/g, "") ?? "";
     const text = buildWhatsAppMessage();
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
   }
 
   function goCheckout() {
+    const error = validateCartForCheckout();
+    if (error) {
+      setCartError(error);
+      return;
+    }
+    setCartError("");
     const items = cart.map((i) => ({
       productId: i.product.id,
       quantity: i.quantity,
+      fragranceId: i.fragranceId,
+      fragranceLabel: i.fragranceLabel,
+      colorId: i.colorId,
+      colorLabel: i.colorLabel,
     }));
     sessionStorage.setItem(
       `checkout-${storeSlug}`,
@@ -228,6 +366,20 @@ export function CatalogView({
 
   return (
     <div className="catalog-page">
+      <div className="catalog-page__atmosphere" aria-hidden>
+        <div className="catalog-page__texture" />
+        <div className="catalog-page__blob catalog-page__blob--cream" />
+        <div className="catalog-page__blob catalog-page__blob--sage" />
+        <div className="catalog-page__blob catalog-page__blob--beige" />
+        <div className="catalog-page__blob catalog-page__blob--green" />
+        <div className="catalog-page__leaf catalog-page__leaf--tl" />
+        <div className="catalog-page__leaf catalog-page__leaf--tr" />
+        <div className="catalog-page__leaf catalog-page__leaf--bl" />
+        <div className="catalog-page__lavender catalog-page__lavender--1" />
+        <div className="catalog-page__lavender catalog-page__lavender--2" />
+        <div className="catalog-page__flower catalog-page__flower--1" />
+      </div>
+
       <FloatingCartButton
         itemCount={cartItemCount}
         onOpen={() => setCartOpen(true)}
@@ -250,22 +402,19 @@ export function CatalogView({
 
         <main
           id="catalog-products"
-          className="relative isolate flex-1 scroll-mt-4 px-2 pb-24 pt-3 sm:px-4 sm:pb-28"
+          className="catalog-showcase relative isolate flex-1 scroll-mt-4"
         >
           <div
-            className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand-beige via-brand-cream to-brand-light/70"
+            className="catalog-showcase__glow catalog-showcase__glow--left"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute -left-16 top-24 h-56 w-56 rounded-full bg-brand/5 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -right-12 bottom-32 h-48 w-48 rounded-full bg-brand-light blur-3xl"
+            className="catalog-showcase__glow catalog-showcase__glow--right"
             aria-hidden
           />
 
-          <div className="space-y-6 sm:space-y-8">
+          <div className="catalog-showcase__inner">
+            <div className="space-y-6 sm:space-y-8">
             {showFeatured && (
               <CatalogFeaturedSection
                 products={featuredProducts}
@@ -308,6 +457,7 @@ export function CatalogView({
               </CatalogProductsShell>
             )}
           </div>
+          </div>
         </main>
       </div>
 
@@ -321,8 +471,12 @@ export function CatalogView({
 
       <CartSidebar
         items={cart}
+        fragrances={fragrances}
+        colors={colors}
+        cartError={cartError}
         onUpdateQty={updateQty}
         onUpdateNotes={updateNotes}
+        onUpdateCustomization={updateCustomization}
         onRemove={removeFromCart}
         onWhatsApp={openWhatsApp}
         onCheckout={goCheckout}

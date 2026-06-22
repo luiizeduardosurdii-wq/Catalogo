@@ -7,8 +7,14 @@ import {
   useEffect,
   useState,
 } from "react";
+import {
+  persistTheme,
+  resolveClientTheme,
+  THEME_COOKIE,
+  type Theme,
+} from "@/lib/theme";
 
-export type Theme = "light" | "dark";
+export type { Theme };
 
 type ThemeContextValue = {
   theme: Theme;
@@ -18,31 +24,27 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  localStorage.setItem("theme", theme);
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+export function ThemeProvider({
+  children,
+  initialTheme,
+}: {
+  children: React.ReactNode;
+  initialTheme?: Theme;
+}) {
+  const [theme, setThemeState] = useState<Theme>(initialTheme ?? "light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme") as Theme | null;
-    const initial: Theme =
-      stored === "dark" || stored === "light"
-        ? stored
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
+    const stored = localStorage.getItem(THEME_COOKIE);
+    const initial = resolveClientTheme(stored);
     setThemeState(initial);
-    applyTheme(initial);
+    persistTheme(initial);
     setMounted(true);
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
-    applyTheme(next);
+    persistTheme(next);
   }, []);
 
   return (
