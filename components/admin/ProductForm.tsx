@@ -121,7 +121,7 @@ export function ProductForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="admin-card max-w-2xl space-y-6 p-6"
+      className="admin-card max-w-2xl space-y-6 p-4 sm:p-6"
     >
       {error && (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">

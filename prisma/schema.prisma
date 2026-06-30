@@ -127,6 +127,7 @@ enum OrderStatus {
   DRAFT
   AWAITING_PIX
   PAID
+  DELIVERED
   CANCELLED
   EXPIRED
 }

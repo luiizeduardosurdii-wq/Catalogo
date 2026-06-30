@@ -26,11 +26,11 @@ export default async function AdminLayout({
   });
 
   return (
-    <div className="min-h-screen bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <nav className="border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
+    <div className="admin-shell">
+      <header className="admin-nav">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-4">
           <AdminNav />
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <SettingsBar initialWhatsapp={store?.whatsapp} />
             <form
               action={async () => {
@@ -38,17 +38,14 @@ export default async function AdminLayout({
                 await signOut({ redirectTo: "/admin/login" });
               }}
             >
-              <button
-                type="submit"
-                className="rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-              >
+              <button type="submit" className="admin-btn-ghost max-md:px-2 max-md:text-xs">
                 Sair
               </button>
             </form>
           </div>
         </div>
-      </nav>
-      <main className="mx-auto max-w-5xl p-4">{children}</main>
+      </header>
+      <main className="admin-main">{children}</main>
     </div>
   );
 }

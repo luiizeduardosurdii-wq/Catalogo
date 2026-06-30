@@ -66,7 +66,7 @@ export function ProductCard({
   }
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[22px] border border-[#ddd5c8]/90 bg-brand-cream/95 shadow-[0_8px_30px_rgba(14,159,110,0.07)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/25 hover:shadow-[0_22px_50px_rgba(14,159,110,0.14)] sm:rounded-3xl">
+    <article className="catalog-product-card group relative flex flex-col overflow-hidden rounded-[22px] border border-[#d8cfc0]/75 bg-[#f8f5ef]/95 shadow-[0_8px_24px_rgba(20,83,45,0.07),0_22px_55px_rgba(14,159,110,0.06)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/22 hover:shadow-[0_18px_34px_rgba(20,83,45,0.09),0_30px_70px_rgba(14,159,110,0.11)] sm:rounded-3xl">
       <div
         className="pointer-events-none absolute inset-0 z-10 rounded-[22px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-3xl bg-gradient-to-br from-brand-cream/50 via-transparent to-brand/5"
         aria-hidden
@@ -79,7 +79,7 @@ export function ProductCard({
         aria-label={`Ver detalhes de ${product.name}`}
       >
         <div className="relative p-2.5 pb-0 sm:p-3 sm:pb-0">
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-brand-light/50 shadow-inner">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-brand-light/50 shadow-[inset_0_1px_8px_rgba(20,83,45,0.08)]">
             {imageKind === "photo" && product.imageUrl && (
               <>
                 <Image
@@ -124,35 +124,36 @@ export function ProductCard({
             </div>
 
             {inCartQty > 0 && (
-              <span className="absolute right-2 top-2 z-20 rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(14,159,110,0.35)]">
-                {inCartQty} no carrinho
+              <span className="absolute right-2 top-2 z-20 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(14,159,110,0.35)] lg:px-2.5">
+                <span className="lg:hidden">{inCartQty}</span>
+                <span className="hidden lg:inline">{inCartQty} no carrinho</span>
               </span>
             )}
           </div>
         </div>
 
         <div className="relative flex flex-col gap-1.5 p-3.5 pt-3 sm:p-4 sm:pt-3.5">
-          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-brand-dark transition-colors duration-200 group-hover:text-brand">
+          <h3 className="line-clamp-3 text-[0.875rem] font-bold leading-snug tracking-[-0.01em] text-brand-dark transition-colors duration-200 group-hover:text-brand lg:line-clamp-2 lg:text-[0.95rem]">
             {product.name}
           </h3>
 
           {subtitle && (
-            <p className="line-clamp-2 text-xs leading-relaxed text-[#6B7280]">
+            <p className="line-clamp-2 text-xs leading-relaxed text-[#59645d]">
               {subtitle}
             </p>
           )}
 
           {sizeLabel && (
-            <p className="text-[11px] font-medium uppercase tracking-wide text-[#6B7280]/80">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#59645d]/80">
               {sizeLabel}
             </p>
           )}
 
           <div className="mt-auto flex items-end justify-between gap-2 border-t border-brand-light/80 pt-3">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand/80">
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-brand/80 lg:inline">
               Valor
             </span>
-            <p className="text-lg font-bold tabular-nums tracking-tight text-brand-dark sm:text-xl">
+            <p className="text-lg font-extrabold tabular-nums tracking-tight text-brand-dark sm:text-xl">
               {formatPrice(product.priceCents)}
             </p>
           </div>
@@ -165,13 +166,22 @@ export function ProductCard({
             type="button"
             disabled={outOfStock}
             onClick={handleAdd}
-            className="w-full rounded-2xl bg-gradient-to-r from-brand-dark to-brand py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(14,159,110,0.28)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:from-[#0b8a5f] hover:to-[#12b981] hover:shadow-[0_10px_28px_rgba(14,159,110,0.38)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none touch-manipulation select-none"
+            className="w-full min-h-[2.85rem] rounded-2xl bg-gradient-to-r from-brand-dark to-brand py-3 text-sm font-bold text-white shadow-[0_8px_22px_rgba(14,159,110,0.26)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:from-[#0b8a5f] hover:to-[#12b981] hover:shadow-[0_12px_30px_rgba(14,159,110,0.36)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none touch-manipulation select-none"
           >
-            {outOfStock
-              ? "Indisponível"
-              : inCartQty > 0
-                ? `Adicionar ao carrinho (${inCartQty})`
-                : "Adicionar ao carrinho"}
+            {outOfStock ? (
+              "Indisponível"
+            ) : (
+              <>
+                <span className="lg:hidden">
+                  {inCartQty > 0 ? `Adicionar (${inCartQty})` : "Adicionar"}
+                </span>
+                <span className="hidden lg:inline">
+                  {inCartQty > 0
+                    ? `Adicionar ao carrinho (${inCartQty})`
+                    : "Adicionar ao carrinho"}
+                </span>
+              </>
+            )}
           </button>
         </div>
       )}

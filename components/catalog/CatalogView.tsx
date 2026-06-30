@@ -16,7 +16,6 @@ import type { CartItem } from "@/components/CartDrawer";
 import {
   buildCartLineKey,
   formatCartCustomizationSummary,
-  isSoapProduct,
   type CustomizationOption,
 } from "@/lib/customization";
 
@@ -28,7 +27,7 @@ import {
 type Category = { id: string; name: string; slug: string };
 
 const GRID_CLASS =
-  "grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4";
+  "grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5";
 
 function pickFeaturedProducts(
   products: CatalogProduct[],
@@ -278,12 +277,11 @@ export function CatalogView({
 
   function validateCartForCheckout() {
     for (const item of cart) {
-      if (!isSoapProduct(item.product.categorySlug)) continue;
       if (fragrances.length > 0 && !item.fragranceId) {
-        return "Selecione a fragrância de todos os sabonetes no carrinho.";
+        return "Selecione a fragrância de todos os produtos no carrinho.";
       }
       if (colors.length > 0 && !item.colorId) {
-        return "Selecione a cor de todos os sabonetes no carrinho.";
+        return "Selecione a cor de todos os produtos no carrinho.";
       }
     }
     return "";
@@ -414,7 +412,7 @@ export function CatalogView({
           />
 
           <div className="catalog-showcase__inner">
-            <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             {showFeatured && (
               <CatalogFeaturedSection
                 products={featuredProducts}

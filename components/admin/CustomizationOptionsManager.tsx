@@ -65,7 +65,7 @@ function OptionSection({
   const filtered = options.filter((o) => o.type === type);
 
   return (
-    <section className="admin-card space-y-4 p-5">
+    <section className="admin-card space-y-4 p-4 sm:p-5">
       <div>
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
@@ -104,7 +104,7 @@ function OptionSection({
           {filtered.map((option) => (
             <li
               key={option.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950"
+              className="flex flex-col gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800 dark:bg-zinc-950"
             >
               <div className="flex min-w-0 items-center gap-3">
                 {option.type === "COLOR" && option.hexColor && (
@@ -127,14 +127,14 @@ function OptionSection({
                 <button
                   type="button"
                   onClick={() => toggle(option.id, option.active)}
-                  className={`text-sm ${option.active ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}
+                  className={`min-h-[2.5rem] px-2 text-sm sm:min-h-0 ${option.active ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}
                 >
                   {option.active ? "Ativa" : "Inativa"}
                 </button>
                 <button
                   type="button"
                   onClick={() => remove(option.id)}
-                  className="text-sm text-red-500 hover:text-red-600"
+                  className="min-h-[2.5rem] px-2 text-sm text-red-500 hover:text-red-600 sm:min-h-0"
                 >
                   Excluir
                 </button>
@@ -152,13 +152,13 @@ export function CustomizationOptionsManager({ initial }: { initial: Option[] }) 
     <div className="grid gap-6 lg:grid-cols-2">
       <OptionSection
         title="Fragrâncias"
-        description="Opções exibidas no carrinho para sabonetes."
+        description="Disponíveis para todos os produtos do catálogo, em qualquer categoria."
         type="FRAGRANCE"
         options={initial}
       />
       <OptionSection
         title="Cores"
-        description="Cores disponíveis para personalização do sabonete."
+        description="Disponíveis para todos os produtos do catálogo, em qualquer categoria."
         type="COLOR"
         options={initial}
       />

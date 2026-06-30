@@ -85,7 +85,7 @@ export function SettingsBar({ initialWhatsapp }: SettingsBarProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute right-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-zinc-200 bg-white p-4 shadow-lg sm:w-72 dark:border-zinc-700 dark:bg-zinc-900">
           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
             Configurações
           </p>

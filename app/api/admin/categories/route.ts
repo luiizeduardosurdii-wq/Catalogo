@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/format";
+import { ensureStoreCustomizationOptions } from "@/lib/customization-defaults";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -44,6 +45,8 @@ export async function POST(req: Request) {
       sortOrder: body.data.sortOrder ?? 0,
     },
   });
+
+  await ensureStoreCustomizationOptions(session.user.storeId);
 
   return NextResponse.json(category, { status: 201 });
 }

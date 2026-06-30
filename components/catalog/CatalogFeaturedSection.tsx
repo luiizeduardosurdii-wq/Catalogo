@@ -23,18 +23,18 @@ export function CatalogFeaturedSection({
   return (
     <section
       aria-label="Destaques da loja"
-      className="relative overflow-hidden rounded-3xl border border-[#ddd5c8]/70 bg-gradient-to-br from-brand-cream via-brand-warm/80 to-brand-sage/70 p-4 shadow-[0_4px_6px_rgba(20,83,45,0.05),0_16px_40px_rgba(14,159,110,0.09)] sm:p-5"
+      className="relative overflow-hidden rounded-3xl border border-[#d8cfc0]/65 bg-gradient-to-br from-[#fbf7f0]/95 via-[#f8f5ef]/88 to-brand-sage/72 p-4 shadow-[0_8px_24px_rgba(20,83,45,0.07),0_24px_60px_rgba(14,159,110,0.08)] sm:p-5"
     >
       <div
         className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand/10 blur-2xl"
         aria-hidden
       />
-      <div className="relative mb-4 flex items-end justify-between gap-3">
+      <div className="relative mb-3.5 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand">
             Destaques
           </p>
-          <h2 className="text-lg font-bold text-brand-dark sm:text-xl">
+          <h2 className="text-xl font-extrabold tracking-[-0.02em] text-brand-dark sm:text-2xl">
             Mais pedidos
           </h2>
         </div>
@@ -43,7 +43,7 @@ export function CatalogFeaturedSection({
         </span>
       </div>
 
-      <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="relative grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((product) => {
           const thumb = getThumb(product.imageUrl);
           const isPhoto = thumb?.startsWith("/uploads/");
@@ -53,7 +53,7 @@ export function CatalogFeaturedSection({
               key={product.id}
               type="button"
               onClick={() => onSelect(product)}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-brand/10 bg-brand-cream/95 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_12px_28px_rgba(14,159,110,0.12)] touch-manipulation"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-brand/10 bg-[#f8f5ef]/95 text-left shadow-[0_6px_18px_rgba(20,83,45,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_14px_30px_rgba(14,159,110,0.12)] touch-manipulation"
             >
               <div className="relative aspect-square overflow-hidden bg-brand-light/50">
                 {isPhoto && thumb ? (
@@ -83,10 +83,10 @@ export function CatalogFeaturedSection({
                 )}
               </div>
               <div className="flex flex-1 flex-col gap-1 p-3">
-                <p className="line-clamp-2 text-xs font-semibold leading-snug text-brand-dark group-hover:text-brand">
+                <p className="line-clamp-3 text-[0.8125rem] font-bold leading-snug text-brand-dark group-hover:text-brand lg:line-clamp-2">
                   {product.name}
                 </p>
-                <p className="mt-auto text-sm font-bold text-brand-dark">
+                <p className="mt-auto text-base font-extrabold text-brand-dark">
                   {formatPrice(product.priceCents)}
                 </p>
               </div>

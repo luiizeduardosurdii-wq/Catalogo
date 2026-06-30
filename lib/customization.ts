@@ -14,12 +14,6 @@ export type CartCustomization = {
   colorLabel?: string;
 };
 
-export const SOAP_CATEGORY_SLUG = "sabonetes";
-
-export function isSoapProduct(categorySlug: string) {
-  return categorySlug === SOAP_CATEGORY_SLUG;
-}
-
 export function buildCartLineKey(
   productId: string,
   customization?: CartCustomization

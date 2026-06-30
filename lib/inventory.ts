@@ -247,3 +247,31 @@ export async function releaseReservedStock(
     }
   });
 }
+
+export async function restoreSoldStock(
+  storeId: string,
+  orderId: string,
+  items: { productId: string; quantity: number }[]
+) {
+  return prisma.$transaction(async (tx) => {
+    for (const item of items) {
+      const inv = await getOrCreateInventory(tx, item.productId);
+      const newQty = inv.quantity + item.quantity;
+
+      await tx.inventory.update({
+        where: { productId: item.productId },
+        data: { quantity: newQty },
+      });
+
+      await recordMovement(tx, {
+        storeId,
+        productId: item.productId,
+        type: MovementType.CANCEL,
+        quantity: item.quantity,
+        balanceAfter: newQty,
+        orderId,
+        note: `Estorno cancelamento pedido ${orderId}`,
+      });
+    }
+  });
+}

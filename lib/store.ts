@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { getStockStatus } from "./format";
 import type { CustomizationOption } from "./customization";
+import { ensureStoreCustomizationOptions } from "./customization-defaults";
 
 export async function getStoreBySlug(slug: string) {
   return prisma.store.findFirst({
@@ -11,6 +12,8 @@ export async function getStoreBySlug(slug: string) {
 export async function getStoreCustomizationOptions(
   storeId: string
 ): Promise<CustomizationOption[]> {
+  await ensureStoreCustomizationOptions(storeId);
+
   const options = await prisma.customizationOption.findMany({
     where: { storeId, active: true },
     orderBy: [{ type: "asc" }, { sortOrder: "asc" }, { label: "asc" }],

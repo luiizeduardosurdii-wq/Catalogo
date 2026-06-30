@@ -1,15 +1,7 @@
 import Link from "next/link";
-import { OrderStatus } from "@prisma/client";
 import { formatPrice } from "@/lib/format";
+import { ORDER_STATUS_LABELS } from "@/lib/order-admin";
 import type { DashboardRecentOrder } from "@/lib/admin-dashboard";
-
-const statusLabels: Record<OrderStatus, string> = {
-  DRAFT: "Rascunho",
-  AWAITING_PIX: "Aguardando PIX",
-  PAID: "Pago",
-  CANCELLED: "Cancelado",
-  EXPIRED: "Expirado",
-};
 
 function formatOrderDate(date: Date): string {
   const now = new Date();
@@ -33,7 +25,7 @@ export function RecentOrdersPanel({ orders }: RecentOrdersPanelProps) {
   return (
     <section className="admin-card p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">Pedidos recentes</h2>
+        <h2 className="font-semibold text-[#14532d] dark:text-zinc-100">Pedidos recentes</h2>
         <Link
           href="/admin/pedidos"
           className="text-sm text-emerald-700 hover:underline dark:text-emerald-400"
@@ -47,22 +39,24 @@ export function RecentOrdersPanel({ orders }: RecentOrdersPanelProps) {
       ) : (
         <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {orders.map((order) => (
-            <li
-              key={order.id}
-              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  #{order.id.slice(-8)}
-                  {order.customerName ? ` · ${order.customerName}` : ""}
+            <li key={order.id}>
+              <Link
+                href={`/admin/pedidos#order-${order.id}`}
+                className="-mx-2 flex items-center justify-between gap-3 rounded-xl px-2 py-3 transition hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    #{order.id.slice(-8)}
+                    {order.customerName ? ` · ${order.customerName}` : ""}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {ORDER_STATUS_LABELS[order.status]} · {formatOrderDate(order.createdAt)}
+                  </p>
+                </div>
+                <p className="shrink-0 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                  {formatPrice(order.totalCents)}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {statusLabels[order.status]} · {formatOrderDate(order.createdAt)}
-                </p>
-              </div>
-              <p className="shrink-0 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                {formatPrice(order.totalCents)}
-              </p>
+              </Link>
             </li>
           ))}
         </ul>

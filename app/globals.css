@@ -6,10 +6,10 @@
   --color-primary: #0e9f6e;
   --color-primary-dark: #14532d;
   --color-primary-light: #a7f3d0;
-  --color-beige: #ede8df;
-  --color-beige-warm: #e8e2d6;
-  --color-cream: #f7f2e9;
-  --color-cream-soft: #faf6ef;
+  --color-beige: #ebe2d4;
+  --color-beige-warm: #e6dccd;
+  --color-cream: #f8f5ef;
+  --color-cream-soft: #fbf7f0;
   --color-sage: #e4ebe0;
   --color-sage-light: #edf3ea;
   --color-mist: #dfe9e2;
@@ -50,6 +50,8 @@
   --animate-product-modal-backdrop-out: product-modal-backdrop-out 0.28s ease forwards;
   --animate-cart-slide-in: cart-slide-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   --animate-cart-slide-out: cart-slide-out 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-cart-sheet-in: cart-sheet-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  --animate-cart-sheet-out: cart-sheet-out 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   --animate-cart-backdrop-in: cart-backdrop-in 0.45s ease forwards;
   --animate-cart-backdrop-out: cart-backdrop-out 0.32s ease forwards;
 }
@@ -115,6 +117,28 @@
   }
 }
 
+@keyframes cart-sheet-in {
+  from {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cart-sheet-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+}
+
 @keyframes cart-slide-in {
   from {
     opacity: 0.6;
@@ -156,16 +180,16 @@
 }
 
 body {
-  background-color: var(--color-beige);
+  background-color: #f8f5ef;
   background-image:
     var(--catalog-paper-texture),
-    radial-gradient(ellipse 90% 60% at 15% 0%, rgba(212, 196, 168, 0.45), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 8%, rgba(167, 201, 168, 0.28), transparent 50%),
-    radial-gradient(ellipse 80% 55% at 50% 100%, rgba(14, 159, 110, 0.1), transparent 60%),
+    radial-gradient(ellipse 90% 60% at 15% 0%, rgba(212, 196, 168, 0.4), transparent 58%),
+    radial-gradient(ellipse 70% 50% at 85% 8%, rgba(167, 201, 168, 0.24), transparent 52%),
+    radial-gradient(ellipse 80% 55% at 50% 100%, rgba(14, 159, 110, 0.08), transparent 64%),
     linear-gradient(
       165deg,
       var(--color-cream-soft) 0%,
-      var(--color-cream) 22%,
+      var(--color-cream) 26%,
       var(--color-beige) 48%,
       var(--color-sage-light) 72%,
       var(--color-mist) 100%
@@ -187,10 +211,107 @@ html {
 
 @layer components {
   .admin-card {
-    @apply rounded-2xl bg-white shadow-sm dark:bg-zinc-900 dark:shadow-none dark:ring-1 dark:ring-zinc-800;
+    @apply rounded-2xl border border-[#ddd5c8]/90 bg-[#faf6ef]/95 shadow-[0_4px_20px_rgba(14,159,110,0.06)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none dark:ring-1 dark:ring-zinc-800;
   }
   .admin-input {
-    @apply rounded-xl border border-zinc-200 bg-white px-3 py-2 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100;
+    @apply rounded-xl border border-[#ddd5c8] bg-[#faf6ef] px-3 py-2 text-[#14532d] outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100;
+  }
+
+  .admin-shell {
+    min-height: 100vh;
+    color: var(--color-primary-dark);
+    background-color: var(--color-beige);
+    background-image:
+      radial-gradient(ellipse 90% 60% at 0% 0%, rgba(247, 242, 233, 0.95), transparent 55%),
+      radial-gradient(ellipse 80% 55% at 100% 0%, rgba(228, 235, 224, 0.8), transparent 50%),
+      linear-gradient(
+        180deg,
+        var(--color-cream-soft) 0%,
+        var(--color-beige) 45%,
+        var(--color-sage-light) 100%
+      );
+  }
+
+  .dark .admin-shell {
+    @apply bg-zinc-950 text-zinc-100;
+    background-image: none;
+  }
+
+  .admin-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid color-mix(in srgb, var(--catalog-card-border) 80%, transparent);
+    background: color-mix(in srgb, var(--color-cream-soft) 92%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .dark .admin-nav {
+    @apply border-zinc-800 bg-zinc-900/95;
+  }
+
+  .admin-nav__link {
+    @apply rounded-xl px-3 py-2 text-sm font-medium text-[#14532d]/75 transition hover:bg-[#e4ebe0]/80 hover:text-[#14532d] dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100;
+  }
+
+  .admin-nav__link--active {
+    @apply bg-[#e4ebe0] text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400;
+  }
+
+  .admin-nav__menu-btn {
+    @apply flex h-10 w-10 items-center justify-center rounded-xl border border-[#ddd5c8] bg-[#faf6ef] text-[#14532d] transition hover:bg-[#e4ebe0] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800;
+  }
+
+  .admin-nav__backdrop {
+    position: fixed;
+    inset: 0;
+    top: 3.5rem;
+    z-index: 40;
+    border: 0;
+    background: rgba(20, 83, 45, 0.18);
+  }
+
+  .admin-nav__mobile {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 3.5rem;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--catalog-card-border) 80%, transparent);
+    background: color-mix(in srgb, var(--color-cream-soft) 98%, transparent);
+    padding: 0.75rem 1rem 1rem;
+    backdrop-filter: blur(12px);
+  }
+
+  .dark .admin-nav__mobile {
+    @apply border-zinc-800 bg-zinc-900/98;
+  }
+
+  .admin-nav__mobile .admin-nav__link {
+    @apply px-4 py-3;
+  }
+
+  .admin-main {
+    @apply mx-auto max-w-5xl p-4 sm:p-6;
+  }
+
+  .admin-section-title {
+    @apply mb-3 text-xs font-semibold uppercase tracking-wide text-[#14532d]/55 dark:text-zinc-500;
+  }
+
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700;
+  }
+
+  .admin-btn-secondary {
+    @apply rounded-xl border border-[#ddd5c8] bg-[#faf6ef] px-4 py-2 text-sm font-medium text-[#14532d] transition hover:border-emerald-200 hover:bg-[#f7f2e9] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800;
+  }
+
+  .admin-btn-ghost {
+    @apply rounded-lg px-3 py-1.5 text-sm text-[#14532d]/70 transition hover:bg-[#e4ebe0]/80 hover:text-[#14532d] dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100;
   }
   .logo-container {
     @apply flex justify-center py-5;
@@ -205,21 +326,23 @@ html {
     max-width: 100vw;
     overflow-x: hidden;
     isolation: isolate;
-    background-color: var(--color-beige);
+    background-color: #f8f5ef;
     background-image:
-      radial-gradient(ellipse 100% 80% at 0% 0%, rgba(247, 242, 233, 0.95), transparent 50%),
-      radial-gradient(ellipse 90% 70% at 100% 15%, rgba(228, 235, 224, 0.85), transparent 48%),
-      radial-gradient(ellipse 70% 60% at 30% 85%, rgba(14, 159, 110, 0.09), transparent 55%),
-      radial-gradient(ellipse 60% 50% at 80% 75%, rgba(212, 165, 116, 0.12), transparent 50%),
+      var(--catalog-paper-texture),
+      radial-gradient(ellipse 115% 82% at -8% -4%, rgba(251, 247, 240, 0.94), transparent 52%),
+      radial-gradient(ellipse 78% 56% at 104% 16%, rgba(219, 228, 213, 0.68), transparent 52%),
+      radial-gradient(ellipse 65% 46% at 22% 76%, rgba(212, 165, 116, 0.18), transparent 58%),
+      radial-gradient(ellipse 56% 42% at 86% 82%, rgba(14, 159, 110, 0.08), transparent 62%),
       linear-gradient(
         168deg,
-        var(--color-cream-soft) 0%,
-        var(--color-cream) 18%,
+        #fbf7f0 0%,
+        #f8f5ef 18%,
         var(--color-beige-warm) 42%,
         var(--color-beige) 62%,
         var(--color-sage-light) 82%,
         var(--color-mist) 100%
       );
+    background-blend-mode: overlay, normal, normal, normal, normal, normal;
     background-attachment: fixed;
   }
 
@@ -234,33 +357,35 @@ html {
   .catalog-page__texture {
     position: absolute;
     inset: 0;
-    opacity: 0.045;
+    opacity: 0.075;
     background-image: var(--catalog-paper-texture);
-    background-size: 420px 420px;
+    background-size: 360px 360px;
     mix-blend-mode: multiply;
   }
 
   .catalog-page__blob {
     position: absolute;
-    border-radius: 50%;
-    filter: blur(64px);
+    border-radius: 42% 58% 62% 38% / 42% 44% 56% 58%;
+    filter: blur(72px);
     will-change: transform;
   }
 
   .catalog-page__blob--cream {
     top: -8%;
     left: -6%;
-    width: min(52vw, 420px);
-    height: min(52vw, 420px);
-    background: rgba(250, 246, 239, 0.75);
+    width: min(58vw, 500px);
+    height: min(44vw, 380px);
+    background: rgba(251, 247, 240, 0.86);
+    transform: rotate(-10deg);
   }
 
   .catalog-page__blob--sage {
-    top: 28%;
+    top: 23%;
     right: -10%;
-    width: min(48vw, 380px);
-    height: min(48vw, 380px);
-    background: rgba(167, 201, 168, 0.32);
+    width: min(52vw, 440px);
+    height: min(40vw, 340px);
+    background: rgba(167, 201, 168, 0.22);
+    transform: rotate(18deg);
   }
 
   .catalog-page__blob--beige {
@@ -268,15 +393,17 @@ html {
     left: 12%;
     width: min(56vw, 440px);
     height: min(40vw, 320px);
-    background: rgba(212, 196, 168, 0.28);
+    background: rgba(212, 196, 168, 0.22);
+    transform: rotate(-14deg);
   }
 
   .catalog-page__blob--green {
     bottom: 22%;
     right: 8%;
-    width: min(36vw, 280px);
-    height: min(36vw, 280px);
-    background: rgba(14, 159, 110, 0.12);
+    width: min(40vw, 320px);
+    height: min(30vw, 250px);
+    background: rgba(14, 159, 110, 0.075);
+    transform: rotate(16deg);
   }
 
   .catalog-page__leaf,
@@ -291,7 +418,7 @@ html {
   .catalog-page__leaf {
     width: 7rem;
     height: 7rem;
-    opacity: 0.14;
+    opacity: 0.055;
     background-image: var(--catalog-leaf-svg);
   }
 
@@ -307,7 +434,7 @@ html {
     width: 5.5rem;
     height: 5.5rem;
     transform: rotate(145deg) scaleX(-1);
-    opacity: 0.1;
+    opacity: 0.045;
   }
 
   .catalog-page__leaf--bl {
@@ -316,13 +443,13 @@ html {
     width: 4.5rem;
     height: 4.5rem;
     transform: rotate(32deg);
-    opacity: 0.09;
+    opacity: 0.04;
   }
 
   .catalog-page__lavender {
     width: 4rem;
     height: 4rem;
-    opacity: 0.2;
+    opacity: 0.085;
     background-image: var(--catalog-lavender-svg);
   }
 
@@ -337,14 +464,14 @@ html {
     left: 4%;
     width: 3.25rem;
     height: 3.25rem;
-    opacity: 0.14;
+    opacity: 0.06;
     transform: rotate(-12deg);
   }
 
   .catalog-page__flower {
     width: 3.5rem;
     height: 3.5rem;
-    opacity: 0.16;
+    opacity: 0.055;
     background-image: var(--catalog-flower-svg);
   }
 
@@ -356,21 +483,23 @@ html {
 
   .catalog-showcase {
     position: relative;
-    margin: 0.25rem 0.375rem 0;
-    border-radius: 28px;
-    border: 1px solid rgba(221, 213, 200, 0.65);
+    margin: -0.85rem 0.375rem 0;
+    border-radius: 34px;
+    border: 1px solid rgba(216, 207, 192, 0.58);
     background:
+      radial-gradient(ellipse 90% 42% at 50% 0%, rgba(237, 243, 234, 0.9), transparent 62%),
       linear-gradient(
         180deg,
-        rgba(250, 246, 239, 0.72) 0%,
-        rgba(237, 232, 223, 0.55) 40%,
-        rgba(228, 235, 224, 0.45) 100%
+        rgba(237, 243, 234, 0.74) 0%,
+        rgba(251, 247, 240, 0.76) 26%,
+        rgba(248, 245, 239, 0.66) 52%,
+        rgba(228, 235, 224, 0.46) 100%
       );
     box-shadow:
-      inset 0 1px 0 rgba(255, 252, 247, 0.85),
+      inset 0 1px 0 rgba(255, 252, 247, 0.72),
       inset 0 -1px 0 rgba(14, 159, 110, 0.04),
-      0 8px 32px rgba(20, 83, 45, 0.06),
-      0 24px 64px rgba(14, 159, 110, 0.07);
+      0 10px 34px rgba(20, 83, 45, 0.07),
+      0 28px 76px rgba(14, 159, 110, 0.075);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
@@ -389,17 +518,17 @@ html {
 
   .catalog-showcase__inner {
     position: relative;
-    padding: 0.875rem 0.625rem 6rem;
+    padding: 0.75rem 0.625rem 6rem;
   }
 
   @media (min-width: 640px) {
     .catalog-showcase {
-      margin: 0.5rem 0.75rem 0;
-      border-radius: 32px;
+      margin: -0.75rem 0.75rem 0;
+      border-radius: 36px;
     }
 
     .catalog-showcase__inner {
-      padding: 1rem 1rem 7rem;
+      padding: 0.875rem 1rem 7rem;
     }
   }
 
@@ -429,29 +558,29 @@ html {
   .catalog-section {
     --section-surface: linear-gradient(
       145deg,
-      rgba(250, 246, 239, 0.95) 0%,
-      rgba(245, 238, 228, 0.9) 45%,
-      rgba(237, 232, 223, 0.88) 100%
+      rgba(251, 247, 240, 0.96) 0%,
+      rgba(248, 245, 239, 0.91) 42%,
+      rgba(235, 226, 212, 0.84) 100%
     );
     --section-header: linear-gradient(
       95deg,
-      rgba(228, 235, 224, 0.85) 0%,
-      rgba(237, 243, 234, 0.75) 55%,
-      rgba(250, 246, 239, 0.8) 100%
+      rgba(228, 235, 224, 0.78) 0%,
+      rgba(248, 245, 239, 0.82) 55%,
+      rgba(251, 247, 240, 0.72) 100%
     );
     --section-body: linear-gradient(
       180deg,
-      rgba(237, 243, 234, 0.55) 0%,
-      rgba(250, 246, 239, 0.45) 100%
+      rgba(248, 245, 239, 0.58) 0%,
+      rgba(251, 247, 240, 0.42) 100%
     );
   }
 
   .catalog-section--warm {
     --section-surface: linear-gradient(
       145deg,
-      rgba(250, 246, 239, 0.95) 0%,
-      rgba(245, 238, 228, 0.9) 45%,
-      rgba(237, 232, 223, 0.88) 100%
+      rgba(251, 247, 240, 0.96) 0%,
+      rgba(248, 245, 239, 0.91) 45%,
+      rgba(235, 226, 212, 0.84) 100%
     );
     --section-header: linear-gradient(
       95deg,
@@ -469,9 +598,9 @@ html {
   .catalog-section--sage {
     --section-surface: linear-gradient(
       145deg,
-      rgba(237, 243, 234, 0.92) 0%,
-      rgba(228, 235, 224, 0.88) 50%,
-      rgba(223, 233, 226, 0.85) 100%
+      rgba(237, 243, 234, 0.9) 0%,
+      rgba(228, 235, 224, 0.82) 50%,
+      rgba(248, 245, 239, 0.72) 100%
     );
     --section-header: linear-gradient(
       95deg,
@@ -494,24 +623,56 @@ html {
   .catalog-hero-premium {
     position: relative;
     overflow: hidden;
-    min-height: clamp(340px, 58vh, 520px);
-    border-radius: 0 0 32px 32px;
+    min-height: clamp(680px, 92svh, 860px);
+    border-radius: 0 0 40px 40px;
     border: none;
-    background: var(--color-cream-soft);
-    box-shadow: none;
+    background:
+      radial-gradient(ellipse 58% 48% at 82% 18%, rgba(255, 255, 255, 0.62), transparent 62%),
+      radial-gradient(ellipse 54% 38% at 82% 72%, rgba(14, 159, 110, 0.12), transparent 62%),
+      linear-gradient(135deg, #fbf7f0 0%, #f8f5ef 44%, #edf3ea 74%, #dfe9e2 100%);
+    box-shadow:
+      0 28px 90px rgba(20, 83, 45, 0.18),
+      0 8px 30px rgba(20, 83, 45, 0.08);
   }
 
   @media (min-width: 768px) {
     .catalog-hero-premium {
-      min-height: clamp(400px, 56vh, 600px);
-      border-radius: 0 0 36px 36px;
+      min-height: clamp(660px, 88vh, 880px);
+      border-radius: 0 0 48px 48px;
     }
   }
 
   @media (min-width: 1280px) {
     .catalog-hero-premium {
-      min-height: clamp(440px, 54vh, 640px);
+      min-height: clamp(700px, 90vh, 920px);
     }
+  }
+
+  .catalog-hero-premium::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: var(--catalog-paper-texture);
+    background-size: 360px 360px;
+    opacity: 0.065;
+    mix-blend-mode: multiply;
+  }
+
+  .catalog-hero-premium::after {
+    content: "";
+    position: absolute;
+    left: -8%;
+    right: -8%;
+    bottom: -5.5rem;
+    z-index: 2;
+    height: 11rem;
+    pointer-events: none;
+    border-radius: 50% 50% 0 0 / 76% 76% 0 0;
+    background:
+      radial-gradient(ellipse 48% 80% at 76% 0%, rgba(223, 233, 226, 0.78), transparent 66%),
+      linear-gradient(180deg, rgba(237, 243, 234, 0.88) 0%, #f8f5ef 68%);
   }
 
   .catalog-hero-premium__parallax {
@@ -523,9 +684,13 @@ html {
   }
 
   .catalog-hero-premium__bg {
-    background-color: var(--color-cream-soft);
-    background-image: url("/brand/hero-leaves-bg.svg");
-    background-size: cover;
+    inset: 0;
+    background-color: transparent;
+    background-image:
+      radial-gradient(ellipse 38% 28% at 18% 28%, rgba(20, 83, 45, 0.08), transparent 64%),
+      radial-gradient(ellipse 58% 36% at 84% 20%, rgba(255, 255, 255, 0.78), transparent 64%),
+      radial-gradient(ellipse 72% 44% at 62% 94%, rgba(167, 201, 168, 0.22), transparent 70%);
+    background-size: auto;
     background-position: center;
     background-repeat: no-repeat;
   }
@@ -534,161 +699,316 @@ html {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent 55%,
-      color-mix(in srgb, var(--color-cream) 18%, transparent) 72%,
-      color-mix(in srgb, var(--color-beige) 55%, transparent) 88%,
-      var(--color-beige) 100%
-    );
+    background:
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(248, 245, 239, 0.14) 48%,
+        rgba(237, 243, 234, 0.74) 88%,
+        #edf3ea 100%
+      );
   }
 
   @media (min-width: 768px) {
     .catalog-hero-premium__overlay {
-      background: linear-gradient( 
-        to bottom,
-        transparent 0%,
-        transparent 58%,
-        color-mix(in srgb, var(--color-cream) 14%, transparent) 74%,
-        color-mix(in srgb, var(--color-beige) 48%, transparent) 90%,
-        var(--color-beige) 100%
-      );
+      background:
+        linear-gradient(
+          to bottom,
+          transparent 0%,
+          transparent 54%,
+          rgba(237, 243, 234, 0.78) 86%,
+          #edf3ea 100%
+        );
     }
   }
 
-  .catalog-hero-premium__leaf {
-    display: none;
+  .catalog-hero-premium__orb,
+  .catalog-hero-premium__botanical {
+    position: absolute;
+    pointer-events: none;
   }
 
-  .catalog-hero-premium__blob {
-    display: none;
+  .catalog-hero-premium__orb {
+    z-index: 1;
+    border-radius: 9999px;
+    filter: blur(34px);
+    opacity: 0.5;
+  }
+
+  .catalog-hero-premium__orb--top {
+    top: 10%;
+    right: 13%;
+    width: clamp(7rem, 14vw, 13rem);
+    height: clamp(7rem, 14vw, 13rem);
+    background: rgba(255, 252, 247, 0.64);
+  }
+
+  .catalog-hero-premium__orb--bottom {
+    left: 48%;
+    bottom: 12%;
+    width: clamp(8rem, 18vw, 18rem);
+    height: clamp(8rem, 18vw, 18rem);
+    background: rgba(167, 201, 168, 0.24);
+  }
+
+  .catalog-hero-premium__botanical {
+    z-index: 2;
+    width: clamp(4rem, 9vw, 7.5rem);
+    height: clamp(4rem, 9vw, 7.5rem);
+    background-image: var(--catalog-leaf-svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.075;
+  }
+
+  .catalog-hero-premium__botanical--left {
+    left: 1rem;
+    bottom: 5rem;
+    transform: rotate(-24deg);
+  }
+
+  .catalog-hero-premium__botanical--right {
+    top: 5rem;
+    right: 1.75rem;
+    transform: rotate(138deg) scaleX(-1);
   }
 
   .catalog-hero-premium__inner {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     display: flex;
     min-height: inherit;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding: 1.75rem 1.25rem 2.75rem;
+    padding: 6.75rem 1.125rem 7.5rem;
   }
 
   @media (min-width: 640px) {
     .catalog-hero-premium__inner {
-      padding: 2rem 2rem 3rem;
+      padding: 7.5rem 2rem 8rem;
     }
   }
 
   @media (min-width: 768px) {
     .catalog-hero-premium__inner {
-      padding: 2.25rem 2rem 3.25rem;
+      padding: 7.5rem min(6vw, 5rem) 8rem;
     }
   }
 
-  .catalog-hero-premium__glass {
-    margin: 0 auto;
+  .catalog-hero-premium__layout {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    width: min(100%, 1180px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .catalog-hero-premium__layout {
+      grid-template-columns: minmax(18rem, 0.9fr) minmax(26rem, 1.1fr);
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+  }
+
+  .catalog-hero-premium__content {
+    position: relative;
     width: 100%;
-    max-width: 38rem;
-    padding: 1.5rem 1.5rem 1.75rem;
-    text-align: center;
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.38);
-    backdrop-filter: blur(18px) saturate(1.15);
-    -webkit-backdrop-filter: blur(18px) saturate(1.15);
-    border: 1px solid rgba(255, 255, 255, 0.42);
+    max-width: 39rem;
+    padding: clamp(1.35rem, 4vw, 2.75rem);
+    text-align: left;
+    border-radius: clamp(26px, 4vw, 38px);
+    background:
+      radial-gradient(ellipse 100% 92% at 0% 0%, rgba(255, 252, 247, 0.74), transparent 58%),
+      linear-gradient(135deg, rgba(20, 83, 45, 0.15) 0%, rgba(20, 83, 45, 0.1) 42%, rgba(248, 245, 239, 0.42) 100%);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+    border: 1px solid rgba(255, 252, 247, 0.58);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      0 8px 32px rgba(20, 83, 45, 0.05);
+      inset 0 1px 0 rgba(255, 252, 247, 0.78),
+      0 18px 52px rgba(20, 83, 45, 0.14);
   }
 
-  @media (min-width: 640px) {
-    .catalog-hero-premium__glass {
-      padding: 2rem 2rem 2.25rem;
-      border-radius: 32px;
-    }
+  .catalog-hero-premium__content::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(20, 83, 45, 0.16), transparent 48%, rgba(14, 159, 110, 0.14));
+    opacity: 0.6;
   }
 
-  @media (min-width: 768px) {
-    .catalog-hero-premium__glass {
-      max-width: 40rem;
-      padding: 2.25rem 2.25rem 2.5rem;
-    }
+  .catalog-hero-premium__eyebrow {
+    margin: 0 0 0.95rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(20, 83, 45, 0.68);
   }
 
   .catalog-hero-premium__title {
     margin-top: 0;
-    font-size: 1.375rem;
-    font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
-    color: var(--color-primary-dark);
+    max-width: 13ch;
+    font-size: clamp(2.35rem, 9vw, 4.4rem);
+    font-weight: 760;
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+    color: #123d27;
     text-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.85),
-      0 2px 16px rgba(255, 255, 255, 0.45),
-      0 1px 8px rgba(20, 83, 45, 0.1);
-  }
-
-  @media (min-width: 640px) {
-    .catalog-hero-premium__title {
-      font-size: 1.75rem;
-    }
+      0 1px 0 rgba(255, 252, 247, 0.72),
+      0 16px 42px rgba(20, 83, 45, 0.12);
   }
 
   .catalog-hero-premium__subtitle {
-    margin: 0.875rem auto 0;
-    max-width: 28rem;
-    font-size: 0.875rem;
-    line-height: 1.65;
-    color: color-mix(in srgb, var(--color-primary-dark) 72%, var(--color-text-muted));
-    text-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.75),
-      0 1px 10px rgba(255, 255, 255, 0.35);
-  }
-
-  @media (min-width: 640px) {
-    .catalog-hero-premium__subtitle {
-      font-size: 0.9375rem;
-    }
+    margin: 1.15rem 0 0;
+    max-width: 30rem;
+    font-size: clamp(1rem, 2.4vw, 1.2rem);
+    line-height: 1.58;
+    color: rgba(20, 83, 45, 0.72);
+    text-shadow: 0 1px 0 rgba(255, 252, 247, 0.55);
   }
 
   .catalog-hero-premium__highlights {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.25rem;
+    justify-content: flex-start;
+    gap: 0.55rem;
+    margin-top: 1.4rem;
     padding: 0;
     list-style: none;
   }
 
   .catalog-hero-premium__highlights li {
-    padding: 0.375rem 0.875rem;
+    padding: 0.45rem 0.85rem;
     font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--color-primary-dark);
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    color: rgba(20, 83, 45, 0.8);
     border-radius: 9999px;
-    background: rgba(228, 235, 224, 0.62);
+    background: rgba(248, 245, 239, 0.64);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(14, 159, 110, 0.14);
-    box-shadow: 0 1px 6px rgba(255, 255, 255, 0.35);
-  }
-
-  @media (min-width: 640px) {
-    .catalog-hero-premium__highlights li {
-      font-size: 0.8125rem;
-    }
+    border: 1px solid rgba(14, 159, 110, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 252, 247, 0.48);
   }
 
   .catalog-hero-premium__cta {
-    margin-top: 1.5rem;
-    padding: 0.75rem 2rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 3.45rem;
+    margin-top: 1.9rem;
+    padding: 1rem 1.65rem;
+    font-size: 1rem;
+    font-weight: 760;
+    letter-spacing: -0.01em;
     border-radius: 9999px;
+  }
+
+  .catalog-hero-premium__gallery {
+    position: relative;
+    min-height: clamp(21rem, 68vw, 34rem);
+    isolation: isolate;
+  }
+
+  .catalog-hero-premium__gallery-glow {
+    position: absolute;
+    inset: 12% 6% 8% 10%;
+    z-index: 0;
+    border-radius: 42% 58% 48% 52% / 48% 42% 58% 52%;
+    background:
+      radial-gradient(ellipse 80% 70% at 44% 38%, rgba(255, 252, 247, 0.72), transparent 68%),
+      radial-gradient(ellipse 70% 60% at 58% 62%, rgba(14, 159, 110, 0.12), transparent 70%);
+    filter: blur(18px);
+  }
+
+  .catalog-hero-premium__photo {
+    position: absolute;
+    z-index: 1;
+    overflow: hidden;
+    margin: 0;
+    border-radius: clamp(24px, 4vw, 34px);
+    border: 1px solid rgba(255, 252, 247, 0.74);
+    background: #f8f5ef;
+    box-shadow:
+      0 18px 44px rgba(20, 83, 45, 0.16),
+      0 4px 14px rgba(20, 83, 45, 0.08),
+      inset 0 1px 0 rgba(255, 252, 247, 0.8);
+  }
+
+  .catalog-hero-premium__photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(255, 252, 247, 0.08), transparent 38%, rgba(20, 83, 45, 0.1)),
+      radial-gradient(ellipse 70% 44% at 50% 0%, rgba(255, 255, 255, 0.18), transparent 64%);
+  }
+
+  .catalog-hero-premium__photo--pink {
+    left: 4%;
+    top: 8%;
+    width: clamp(10rem, 30vw, 18rem);
+    height: clamp(16rem, 44vw, 28rem);
+    transform: rotate(-5deg);
+  }
+
+  .catalog-hero-premium__photo--blue {
+    right: 2%;
+    top: 2%;
+    z-index: 2;
+    width: clamp(10.5rem, 31vw, 19rem);
+    height: clamp(15rem, 42vw, 27rem);
+    transform: rotate(4deg);
+  }
+
+  .catalog-hero-premium__photo--green {
+    left: 30%;
+    bottom: 0;
+    z-index: 3;
+    width: clamp(11rem, 29vw, 18rem);
+    height: clamp(15.5rem, 40vw, 25rem);
+    transform: rotate(-1.5deg);
+  }
+
+  @media (max-width: 899px) {
+    .catalog-hero-premium__content {
+      max-width: none;
+    }
+
+    .catalog-hero-premium__gallery {
+      min-height: clamp(19rem, 82vw, 31rem);
+      margin-top: -0.5rem;
+    }
+
+    .catalog-hero-premium__photo {
+      border-radius: 24px;
+    }
+
+    .catalog-hero-premium__photo--pink {
+      left: 0;
+      top: 8%;
+      width: 38%;
+      height: 72%;
+    }
+
+    .catalog-hero-premium__photo--blue {
+      right: 0;
+      top: 0;
+      width: 39%;
+      height: 68%;
+    }
+
+    .catalog-hero-premium__photo--green {
+      left: 31%;
+      bottom: 1%;
+      width: 38%;
+      height: 62%;
+    }
   }
 
   .catalog-cart-btn {
@@ -780,19 +1100,21 @@ html {
   }
 
   .catalog-filters-wrapper {
-    margin-top: -1.25rem;
-    padding: 0.5rem 0.5rem 0.25rem;
-    background: linear-gradient(
-      to bottom,
-      var(--color-beige) 0%,
-      rgba(237, 232, 223, 0.65) 70%,
-      transparent 100%
-    );
+    margin-top: -4rem;
+    padding: 0.5rem 0.5rem 0.35rem;
+    background:
+      radial-gradient(ellipse 78% 100% at 50% 0%, rgba(237, 243, 234, 0.72), transparent 62%),
+      linear-gradient(
+        to bottom,
+        rgba(237, 243, 234, 0.48) 0%,
+        rgba(248, 245, 239, 0.68) 72%,
+        transparent 100%
+      );
   }
 
   @media (min-width: 640px) {
     .catalog-filters-wrapper {
-      margin-top: -1.75rem;
+      margin-top: -4.75rem;
       padding: 0.75rem 1rem 0.375rem;
     }
   }
@@ -800,18 +1122,18 @@ html {
   .catalog-filters-premium {
     position: relative;
     overflow: hidden;
-    border-radius: 22px;
-    border: 1px solid rgba(221, 213, 200, 0.55);
+    border-radius: 28px;
+    border: 1px solid rgba(255, 252, 247, 0.72);
     background: linear-gradient(
       145deg,
-      var(--color-cream-soft) 0%,
-      var(--color-cream) 38%,
-      var(--color-sage-light) 100%
+      rgba(255, 252, 247, 0.8) 0%,
+      rgba(248, 245, 239, 0.78) 42%,
+      rgba(237, 243, 234, 0.84) 100%
     );
     box-shadow:
-      0 4px 6px rgba(20, 83, 45, 0.05),
-      0 16px 36px rgba(14, 159, 110, 0.1),
-      inset 0 1px 0 rgba(255, 252, 247, 0.5);
+      0 12px 28px rgba(20, 83, 45, 0.1),
+      0 24px 58px rgba(14, 159, 110, 0.12),
+      inset 0 1px 0 rgba(255, 252, 247, 0.72);
   }
 
   .catalog-filters-premium__leaf {
@@ -855,20 +1177,20 @@ html {
   .catalog-filters-premium__glass {
     position: relative;
     z-index: 1;
-    padding: 0.875rem 1rem 1rem;
-    background: rgba(250, 246, 239, 0.62);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    padding: 0.8rem 1rem 0.95rem;
+    background: rgba(248, 245, 239, 0.54);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
   }
 
   @media (min-width: 640px) {
     .catalog-filters-premium__glass {
-      padding: 1rem 1.25rem 1.125rem;
+      padding: 0.95rem 1.25rem 1.05rem;
     }
   }
 
   .catalog-filters-premium__label {
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.55rem;
     font-size: 0.6875rem;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -1032,9 +1354,13 @@ html {
   }
 
   .catalog-btn-primary {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #34d399 100%);
+    background:
+      radial-gradient(circle at 18% 0%, rgba(255, 252, 247, 0.28), transparent 35%),
+      linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 54%, #34d399 100%);
     color: #fff;
-    box-shadow: 0 4px 16px rgba(14, 159, 110, 0.3);
+    box-shadow:
+      0 12px 26px rgba(14, 159, 110, 0.3),
+      0 2px 0 rgba(255, 252, 247, 0.22) inset;
     transition:
       background 0.25s ease,
       transform 0.15s ease,
@@ -1042,9 +1368,13 @@ html {
   }
 
   .catalog-btn-primary:hover {
-    background: linear-gradient(135deg, #0b8a5f 0%, var(--color-primary) 100%);
-    box-shadow: 0 8px 24px rgba(14, 159, 110, 0.35);
-    transform: translateY(-1px);
+    background:
+      radial-gradient(circle at 18% 0%, rgba(255, 252, 247, 0.34), transparent 35%),
+      linear-gradient(135deg, #0b3f28 0%, #0b8a5f 48%, var(--color-primary) 100%);
+    box-shadow:
+      0 16px 34px rgba(14, 159, 110, 0.38),
+      0 2px 0 rgba(255, 252, 247, 0.24) inset;
+    transform: translateY(-2px);
   }
 
   .catalog-btn-primary:active {
@@ -1084,25 +1414,30 @@ html {
 
 /* Fora do @layer para garantir aplicação em produção */
 .catalog-page {
-  background-color: var(--color-beige) !important;
+  background-color: #f8f5ef !important;
   background-image:
-    radial-gradient(ellipse 100% 80% at 0% 0%, rgba(247, 242, 233, 0.95), transparent 50%),
-    radial-gradient(ellipse 90% 70% at 100% 15%, rgba(228, 235, 224, 0.85), transparent 48%),
-    radial-gradient(ellipse 70% 60% at 30% 85%, rgba(14, 159, 110, 0.09), transparent 55%),
+    var(--catalog-paper-texture),
+    radial-gradient(ellipse 115% 82% at -8% -4%, rgba(251, 247, 240, 0.94), transparent 52%),
+    radial-gradient(ellipse 78% 56% at 104% 16%, rgba(219, 228, 213, 0.68), transparent 52%),
+    radial-gradient(ellipse 65% 46% at 22% 76%, rgba(212, 165, 116, 0.18), transparent 58%),
+    radial-gradient(ellipse 56% 42% at 86% 82%, rgba(14, 159, 110, 0.08), transparent 62%),
     linear-gradient(
       168deg,
-      #faf6ef 0%,
-      #f7f2e9 18%,
-      #e8e2d6 42%,
-      #ede8df 62%,
+      #fbf7f0 0%,
+      #f8f5ef 18%,
+      #e6dccd 42%,
+      #ebe2d4 62%,
       #edf3ea 82%,
       #dfe9e2 100%
     ) !important;
+  background-blend-mode: overlay, normal, normal, normal, normal, normal !important;
   background-attachment: fixed !important;
 }
 
 .catalog-btn-primary {
-  background: linear-gradient(135deg, #0e9f6e 0%, #34d399 100%) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 252, 247, 0.28), transparent 35%),
+    linear-gradient(135deg, #14532d 0%, #0e9f6e 54%, #34d399 100%) !important;
   color: #fff !important;
 }
 
@@ -1115,4 +1450,118 @@ button,
 a,
 [role="button"] {
   touch-action: manipulation;
+}
+
+/* ── Mobile & tablet (< 1024px) — desktop (lg+) inalterado ── */
+@media (max-width: 1023px) {
+  .catalog-page {
+    background-attachment: scroll !important;
+    overflow-x: clip;
+  }
+
+  .catalog-showcase {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .catalog-showcase__inner {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .catalog-filters-wrapper {
+    top: env(safe-area-inset-top, 0px);
+    padding-left: 0.375rem;
+    padding-right: 0.375rem;
+  }
+
+  .catalog-filters-premium__glass {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .catalog-filter-pill {
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .catalog-filter-search {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+  }
+
+  .catalog-input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+
+  .catalog-cart-btn {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0.6875rem 1rem;
+  }
+
+  .catalog-cart-btn--floating-bottom-right {
+    bottom: max(1.125rem, env(safe-area-inset-bottom, 0px));
+    right: max(0.875rem, env(safe-area-inset-right, 0px));
+  }
+
+  .catalog-hero-premium {
+    min-height: clamp(700px, 94svh, 880px);
+  }
+
+  .catalog-product-card.group:hover {
+    transform: none;
+    box-shadow: 0 8px 30px rgba(14, 159, 110, 0.07);
+  }
+
+  .admin-shell {
+    overflow-x: clip;
+  }
+
+  .admin-main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .admin-nav {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .admin-nav__mobile {
+    max-height: calc(100dvh - 3.5rem - env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-nav__link {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .admin-card {
+    padding: 1rem;
+  }
+
+  .admin-btn-primary,
+  .admin-btn-secondary,
+  .admin-btn-ghost {
+    min-height: 2.75rem;
+  }
+
+  .admin-input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .catalog-showcase__inner {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
 }

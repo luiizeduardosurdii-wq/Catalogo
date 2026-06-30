@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient, MovementType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { DEFAULT_CUSTOMIZATION_OPTIONS } from "../lib/customization-defaults";
 
 const prisma = new PrismaClient();
 
@@ -255,24 +256,13 @@ async function main() {
     });
   }
 
-  const customizationOptions = [
-    { type: "FRAGRANCE" as const, label: "Lavanda", sortOrder: 1 },
-    { type: "FRAGRANCE" as const, label: "Floral", sortOrder: 2 },
-    { type: "FRAGRANCE" as const, label: "Cítrico", sortOrder: 3 },
-    { type: "FRAGRANCE" as const, label: "Neutro", sortOrder: 4 },
-    { type: "COLOR" as const, label: "Branco", hexColor: "#FFFFFF", sortOrder: 1 },
-    { type: "COLOR" as const, label: "Rosa claro", hexColor: "#F9A8D4", sortOrder: 2 },
-    { type: "COLOR" as const, label: "Verde", hexColor: "#0E9F6E", sortOrder: 3 },
-    { type: "COLOR" as const, label: "Lavanda", hexColor: "#C4B5FD", sortOrder: 4 },
-  ];
-
-  for (const option of customizationOptions) {
+  for (const option of DEFAULT_CUSTOMIZATION_OPTIONS) {
     await prisma.customizationOption.create({
       data: {
         storeId: store.id,
         type: option.type,
         label: option.label,
-        hexColor: "hexColor" in option ? option.hexColor : null,
+        hexColor: option.hexColor,
         sortOrder: option.sortOrder,
         active: true,
       },

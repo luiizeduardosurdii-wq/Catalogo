@@ -23,7 +23,7 @@ function ProductDetailImage({
   imageKind: "photo" | "icon" | "none";
 }) {
   return (
-    <div className="relative flex h-full min-h-[240px] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-light via-brand-cream to-brand-beige p-3 sm:min-h-0 sm:p-5">
+    <div className="relative flex h-full min-h-[200px] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-light via-brand-cream to-brand-beige p-4 lg:min-h-0 lg:p-5">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(14,159,110,0.1),transparent_60%)]" />
 
       {imageKind === "photo" && product.imageUrl && (
@@ -140,9 +140,9 @@ export function ProductDetailModal({
 
   return (
     <div
-      className={`fixed inset-0 z-[130] overflow-hidden flex items-center justify-center p-3 sm:p-5 ${
+      className={`fixed inset-0 z-[130] overflow-hidden flex items-end justify-center p-0 sm:items-center sm:p-3 lg:p-5 ${
         cartOpen
-          ? "pointer-events-none sm:pr-[min(360px,92vw)]"
+          ? "pointer-events-none lg:pr-[min(360px,92vw)]"
           : ""
       }`}
       role="dialog"
@@ -159,20 +159,20 @@ export function ProductDetailModal({
       )}
 
       <div
-        className={`pointer-events-auto relative flex max-h-[90vh] w-full max-w-2xl flex-row overflow-hidden rounded-2xl border border-white/70 bg-brand-cream shadow-2xl transition-all duration-500 ease-out sm:max-h-[85vh] sm:max-w-3xl sm:rounded-3xl ${cardAnimation} ${
+        className={`pointer-events-auto relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/70 bg-brand-cream shadow-2xl transition-all duration-500 ease-out sm:max-h-[90vh] sm:max-w-3xl sm:rounded-3xl lg:max-h-[85vh] lg:flex-row ${cardAnimation} ${
           cartOpen ? "shrink-0" : ""
         }`}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-brand/15 bg-white/95 text-brand-dark shadow-md backdrop-blur-sm transition-colors hover:bg-white touch-manipulation sm:right-3 sm:top-3 sm:h-9 sm:w-9"
+          className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-brand/15 bg-white/95 text-brand-dark shadow-md backdrop-blur-sm transition-colors hover:bg-white touch-manipulation lg:right-3 lg:top-3 lg:h-9 lg:w-9"
           aria-label="Fechar"
         >
           ✕
         </button>
 
-        <div className="w-[42%] shrink-0 border-r border-brand/10 sm:w-[46%] sm:max-w-[320px]">
+        <div className="w-full shrink-0 border-b border-brand/10 lg:w-[46%] lg:max-w-[320px] lg:border-b-0 lg:border-r">
           <ProductDetailImage product={displayProduct} imageKind={imageKind} />
         </div>
 
@@ -254,7 +254,7 @@ export function ProductDetailModal({
               type="button"
               disabled={outOfStock}
               onClick={() => onAdd(displayProduct)}
-              className="w-full rounded-xl bg-gradient-to-r from-brand-dark to-brand py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(14,159,110,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(14,159,110,0.38)] active:scale-[0.98] disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none touch-manipulation"
+              className="w-full min-h-[2.75rem] rounded-xl bg-gradient-to-r from-brand-dark to-brand py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(14,159,110,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(14,159,110,0.38)] active:scale-[0.98] disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none touch-manipulation"
             >
               {outOfStock
                 ? "Indisponível"

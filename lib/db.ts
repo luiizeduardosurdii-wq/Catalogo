@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { OrderStatus, PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
@@ -8,9 +8,15 @@ function createPrismaClient() {
   });
 }
 
+function isPrismaClientStale(client: PrismaClient): boolean {
+  if (!("customizationOption" in client)) return true;
+  if (!OrderStatus.DELIVERED) return true;
+  return false;
+}
+
 function getPrismaClient() {
   const cached = globalForPrisma.prisma;
-  if (cached && "customizationOption" in cached) return cached;
+  if (cached && !isPrismaClientStale(cached)) return cached;
 
   const client = createPrismaClient();
   if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = client;

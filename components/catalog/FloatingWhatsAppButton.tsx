@@ -23,7 +23,7 @@ export function FloatingWhatsAppButton({
     <button
       type="button"
       onClick={openChat}
-      className="fixed z-40 flex items-center gap-2 rounded-full border border-[#25D366]/30 bg-white/90 px-3.5 py-2.5 text-sm font-semibold text-[#14532D] shadow-[0_4px_16px_rgba(37,211,102,0.2)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_rgba(37,211,102,0.28)] active:scale-[0.98] touch-manipulation left-[max(0.75rem,env(safe-area-inset-left))] bottom-[max(1rem,env(safe-area-inset-bottom))] sm:left-4 sm:bottom-4"
+      className="fixed z-40 flex min-h-[2.75rem] items-center gap-2 rounded-full border border-[#25D366]/30 bg-white/90 px-3.5 py-2.5 text-sm font-semibold text-[#14532D] shadow-[0_4px_16px_rgba(37,211,102,0.2)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_rgba(37,211,102,0.28)] active:scale-[0.98] touch-manipulation left-[max(0.75rem,env(safe-area-inset-left))] bottom-[max(5.25rem,env(safe-area-inset-bottom))] md:bottom-4 md:left-4"
       aria-label="Falar com a loja no WhatsApp"
     >
       <svg

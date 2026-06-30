@@ -75,7 +75,7 @@ export function CatalogCategorySection({
 
   return (
     <section
-      className={`catalog-section relative overflow-hidden rounded-3xl border border-[#ddd5c8]/70 opacity-0 shadow-[0_4px_6px_rgba(20,83,45,0.05),0_20px_48px_rgba(14,159,110,0.1)] animate-fade-in-up motion-reduce:animate-none motion-reduce:opacity-100 ${
+      className={`catalog-section relative overflow-hidden rounded-3xl border border-[#d8cfc0]/65 opacity-0 shadow-[0_8px_24px_rgba(20,83,45,0.06),0_22px_58px_rgba(14,159,110,0.085)] animate-fade-in-up motion-reduce:animate-none motion-reduce:opacity-100 ${
         animationIndex % 2 === 0 ? "catalog-section--warm" : "catalog-section--sage"
       }`}
       style={{
@@ -102,16 +102,16 @@ export function CatalogCategorySection({
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-cream/25 via-transparent to-brand/5" />
 
-        <div className="relative z-10 flex items-center gap-3 px-4 py-4 backdrop-blur-md bg-brand-cream/45 sm:px-5 sm:py-4">
+        <div className="relative z-10 flex items-center gap-3 px-4 py-3.5 backdrop-blur-md bg-[#f8f5ef]/48 sm:px-5 sm:py-4">
           <span
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-brand-cream/90 text-xl shadow-[0_4px_16px_rgba(14,159,110,0.1)] backdrop-blur-sm"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-[#f8f5ef]/90 text-xl shadow-[0_4px_16px_rgba(14,159,110,0.1)] backdrop-blur-sm"
             aria-hidden
           >
             {CATEGORY_ICONS[slug] ?? "📦"}
           </span>
 
           <div className="min-w-0 flex-1">
-            <h2 className="text-base font-bold tracking-tight text-brand-dark sm:text-lg">
+            <h2 className="text-lg font-extrabold tracking-[-0.02em] text-brand-dark sm:text-xl">
               {name}
             </h2>
           </div>
@@ -123,7 +123,7 @@ export function CatalogCategorySection({
       </div>
 
       <div
-        className="relative p-3 sm:p-5"
+        className="relative p-3 sm:p-4 lg:p-5"
         style={{ background: "var(--section-body)" }}
       >
         <div
@@ -138,7 +138,7 @@ export function CatalogCategorySection({
 
 export function CatalogProductsShell({ children }: { children: ReactNode }) {
   return (
-    <div className="catalog-section catalog-section--warm relative overflow-hidden rounded-3xl border border-[#ddd5c8]/70 p-3 shadow-[0_4px_6px_rgba(20,83,45,0.05),0_20px_48px_rgba(14,159,110,0.1)] sm:p-5" style={{ background: "var(--section-surface)" }}>
+    <div className="catalog-section catalog-section--warm relative overflow-hidden rounded-3xl border border-[#d8cfc0]/65 p-3 shadow-[0_8px_24px_rgba(20,83,45,0.06),0_22px_58px_rgba(14,159,110,0.085)] sm:p-4 lg:p-5" style={{ background: "var(--section-surface)" }}>
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand/8 blur-3xl"
         aria-hidden

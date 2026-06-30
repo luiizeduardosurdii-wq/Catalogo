@@ -63,7 +63,7 @@ export function AdminProductCard({ product }: { product: AdminProductItem }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="space-y-1">
-          <h2 className="line-clamp-2 font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+          <h2 className="line-clamp-3 font-semibold leading-snug text-zinc-900 lg:line-clamp-2 dark:text-zinc-100">
             {product.name}
           </h2>
           {product.description && (
@@ -83,7 +83,7 @@ export function AdminProductCard({ product }: { product: AdminProductItem }) {
         <div className="mt-auto flex gap-2">
           <Link
             href={`/admin/produtos/${product.id}`}
-            className="flex-1 rounded-xl bg-emerald-600 py-2 text-center text-sm font-medium text-white hover:bg-emerald-700"
+            className="flex min-h-[2.75rem] flex-1 items-center justify-center rounded-xl bg-emerald-600 py-2 text-center text-sm font-medium text-white hover:bg-emerald-700 lg:min-h-0"
           >
             Editar
           </Link>
