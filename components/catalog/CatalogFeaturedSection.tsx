@@ -23,7 +23,7 @@ export function CatalogFeaturedSection({
   return (
     <section
       aria-label="Destaques da loja"
-      className="relative overflow-hidden rounded-3xl border border-[#d8cfc0]/65 bg-gradient-to-br from-[#fbf7f0]/95 via-[#f8f5ef]/88 to-brand-sage/72 p-4 shadow-[0_8px_24px_rgba(20,83,45,0.07),0_24px_60px_rgba(14,159,110,0.08)] sm:p-5"
+      className="relative overflow-hidden rounded-3xl border border-emerald-900/10 bg-gradient-to-br from-[#dcefd1]/82 via-[#eef7e8]/68 to-[#bfd9ad]/58 p-4 shadow-[0_8px_24px_rgba(20,83,45,0.07),0_24px_60px_rgba(14,159,110,0.08)] backdrop-blur-sm sm:p-5"
     >
       <div
         className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand/10 blur-2xl"
@@ -53,7 +53,7 @@ export function CatalogFeaturedSection({
               key={product.id}
               type="button"
               onClick={() => onSelect(product)}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-brand/10 bg-[#f8f5ef]/95 text-left shadow-[0_6px_18px_rgba(20,83,45,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_14px_30px_rgba(14,159,110,0.12)] touch-manipulation"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-emerald-900/10 bg-[#edf7e7]/82 text-left shadow-[0_6px_18px_rgba(20,83,45,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:bg-[#f3faee]/88 hover:shadow-[0_14px_30px_rgba(14,159,110,0.12)] touch-manipulation"
             >
               <div className="relative aspect-square overflow-hidden bg-brand-light/50">
                 {isPhoto && thumb ? (

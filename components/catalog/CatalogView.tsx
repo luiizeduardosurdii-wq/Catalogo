@@ -366,16 +366,15 @@ export function CatalogView({
     <div className="catalog-page">
       <div className="catalog-page__atmosphere" aria-hidden>
         <div className="catalog-page__texture" />
-        <div className="catalog-page__blob catalog-page__blob--cream" />
-        <div className="catalog-page__blob catalog-page__blob--sage" />
-        <div className="catalog-page__blob catalog-page__blob--beige" />
-        <div className="catalog-page__blob catalog-page__blob--green" />
-        <div className="catalog-page__leaf catalog-page__leaf--tl" />
-        <div className="catalog-page__leaf catalog-page__leaf--tr" />
-        <div className="catalog-page__leaf catalog-page__leaf--bl" />
-        <div className="catalog-page__lavender catalog-page__lavender--1" />
-        <div className="catalog-page__lavender catalog-page__lavender--2" />
-        <div className="catalog-page__flower catalog-page__flower--1" />
+        <div className="catalog-page__light catalog-page__light--top" />
+        <div className="catalog-page__light catalog-page__light--left" />
+        <div className="catalog-page__light catalog-page__light--right" />
+        <div className="catalog-page__leaf catalog-page__leaf--pear catalog-page__leaf--top-left" />
+        <div className="catalog-page__leaf catalog-page__leaf--kerria catalog-page__leaf--top-right" />
+        <div className="catalog-page__leaf catalog-page__leaf--fig catalog-page__leaf--mid-left" />
+        <div className="catalog-page__leaf catalog-page__leaf--pear catalog-page__leaf--mid-right" />
+        <div className="catalog-page__leaf catalog-page__leaf--kerria catalog-page__leaf--bottom-left" />
+        <div className="catalog-page__leaf catalog-page__leaf--fig catalog-page__leaf--bottom-right" />
       </div>
 
       <FloatingCartButton
